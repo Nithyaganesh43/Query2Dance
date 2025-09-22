@@ -4,23 +4,35 @@ A **Database-IoT Integration System** that transforms SQL query results into phy
 
 ## 🏗️ System Architecture
 
-<div align="center">
-
 ```mermaid
-graph LR
-    A[Frontend<br/>Query UI] -->|HTTP POST| B[Express Backend<br/>Node.js + MySQL]
-    B -->|SQL Query| C[MySQL Database<br/>toys_db]
-    C -->|Query Results| B
-    B -->|HTTP POST<br/>Bitstring| D[ESP32<br/>Web API]
-    D -->|Direct PWM| E[10 Servo Motors<br/>Physical Dolls]
-
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-    style E fill:#f1f8e9
-
-</div>```
+graph TD
+    A[User Input<br/>SQL Query] -->|HTTP POST| B[Express Backend<br/>Node.js Server]
+    B -->|Execute Query| C[MySQL Database<br/>toys_db]
+    C -->|Return Results| D[Process Results<br/>Extract IDs]
+    D -->|Convert| E[Generate Bitstring<br/>10-bit Binary]
+    E -->|HTTP POST| F[ESP32 Controller<br/>WiFi Endpoint]
+    F -->|Parse Bitstring| G[GPIO Control<br/>PWM Signals]
+    G -->|Servo Commands| H[Physical Dolls<br/>Dance Movement]
+    
+    B -.->|Error Handling| I[Error Response]
+    F -.->|Status| J[Confirmation]
+    J -->|Response| B
+    
+    classDef input fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef backend fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef database fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef processing fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef hardware fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef physical fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    classDef error fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    
+    class A input
+    class B,D,E backend
+    class C database
+    class F,G processing
+    class H physical
+    class I,J error
+```
 
 ## ⚡ How It Works
 

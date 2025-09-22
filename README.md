@@ -4,6 +4,8 @@ A **Database-IoT Integration System** that transforms SQL query results into phy
 
 ## 🏗️ System Architecture
 
+<div align="center">
+
 ```mermaid
 graph LR
     A[Frontend<br/>Query UI] -->|HTTP POST| B[Express Backend<br/>Node.js + MySQL]
@@ -11,12 +13,13 @@ graph LR
     C -->|Query Results| B
     B -->|HTTP POST<br/>Bitstring| D[ESP32<br/>Web API]
     D -->|Direct PWM| E[10 Servo Motors<br/>Physical Dolls]
-    
+
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#e8f5e8
     style D fill:#fff3e0
     style E fill:#f1f8e9
+</div> 
 ```
 
 ## ⚡ How It Works

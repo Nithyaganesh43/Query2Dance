@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query2Dance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.2/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            /* Updated to light theme with purple accents, keeping terminal dark */
+            --background: oklch(0.98 0 0);
+            --foreground: oklch(0.15 0 0);
+            --card: oklch(0.96 0 0);
+            --card-foreground: oklch(0.15 0 0);
+            --popover: oklch(0.96 0 0);
+            --popover-foreground: oklch(0.15 0 0);
+            --primary: oklch(0.65 0.25 285);
+            --primary-foreground: oklch(0.98 0 0);
+            --secondary: oklch(0.92 0 0);
+            --secondary-foreground: oklch(0.15 0 0);
+            --muted: oklch(0.94 0 0);
+            --muted-foreground: oklch(0.45 0 0);
+            --accent: oklch(0.65 0.25 285);
+            --accent-foreground: oklch(0.98 0 0);
+            --destructive: oklch(0.65 0.25 15);
+            --destructive-foreground: oklch(0.98 0 0);
+            --border: oklch(0.88 0 0);
+            --input: oklch(0.94 0 0);
+            --ring: oklch(0.65 0.25 285);
+            --chart-1: oklch(0.65 0.25 285);
+            --chart-2: oklch(0.6 0.2 200);
+            --chart-3: oklch(0.7 0.2 120);
+            --chart-4: oklch(0.6 0.25 60);
+            --chart-5: oklch(0.65 0.2 320);
+            --radius: 0.75rem;
+            --sidebar: oklch(0.96 0 0);
+            --sidebar-foreground: oklch(0.15 0 0);
+            --sidebar-primary: oklch(0.65 0.25 285);
+            --sidebar-primary-foreground: oklch(0.98 0 0);
+            --sidebar-accent: oklch(0.92 0 0);
+            --sidebar-accent-foreground: oklch(0.15 0 0);
+            --sidebar-border: oklch(0.88 0 0);
+            --sidebar-ring: oklch(0.65 0.25 285);
+
+            /* Added terminal-specific colors for dark command line */
+            --terminal-bg: oklch(0.08 0 0);
+            --terminal-fg: oklch(0.85 0 0);
+            --terminal-border: oklch(0.25 0 0);
+            --terminal-muted: oklch(0.15 0 0);
+        }
+
+        .dark {
+            --background: oklch(0.08 0 0);
+            --foreground: oklch(0.98 0 0);
+            --card: oklch(0.12 0 0);
+            --card-foreground: oklch(0.98 0 0);
+            --popover: oklch(0.12 0 0);
+            --popover-foreground: oklch(0.98 0 0);
+            --primary: oklch(0.65 0.25 285);
+            --primary-foreground: oklch(0.98 0 0);
+            --secondary: oklch(0.18 0 0);
+            --secondary-foreground: oklch(0.98 0 0);
+            --muted: oklch(0.15 0 0);
+            --muted-foreground: oklch(0.65 0 0);
+            --accent: oklch(0.65 0.25 285);
+            --accent-foreground: oklch(0.98 0 0);
+            --destructive: oklch(0.65 0.25 15);
+            --destructive-foreground: oklch(0.98 0 0);
+            --border: oklch(0.25 0 0);
+            --input: oklch(0.18 0 0);
+            --ring: oklch(0.65 0.25 285);
+            --chart-1: oklch(0.65 0.25 285);
+            --chart-2: oklch(0.6 0.2 200);
+            --chart-3: oklch(0.7 0.2 120);
+            --chart-4: oklch(0.6 0.25 60);
+            --chart-5: oklch(0.65 0.2 320);
+            --sidebar: oklch(0.12 0 0);
+            --sidebar-foreground: oklch(0.98 0 0);
+            --sidebar-primary: oklch(0.65 0.25 285);
+            --sidebar-primary-foreground: oklch(0.98 0 0);
+            --sidebar-accent: oklch(0.18 0 0);
+            --sidebar-accent-foreground: oklch(0.98 0 0);
+            --sidebar-border: oklch(0.25 0 0);
+            --sidebar-ring: oklch(0.65 0.25 285);
+
+            --terminal-bg: oklch(0.08 0 0);
+            --terminal-fg: oklch(0.85 0 0);
+            --terminal-border: oklch(0.25 0 0);
+            --terminal-muted: oklch(0.15 0 0);
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+        }
+
+        /* Updated grid pattern for light theme */
+        .grid-pattern {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            backdrop-filter: blur(4px);
+            background-color: color-mix(in srgb, var(--card) 80%, transparent);
+        }
+
+        .card-header {
+            padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            border: 1px solid transparent;
+            padding: 0.125rem 0.625rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: colors 0.2s;
+        }
+
+        .badge-secondary {
+            background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+            color: var(--primary);
+            border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+        }
+
+        /* Button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: color-mix(in srgb, var(--primary) 90%, black);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Terminal styles */
+        .terminal {
+            border-radius: 0.5rem;
+            border: 1px solid var(--terminal-border);
+            overflow: hidden;
+            background-color: var(--terminal-bg);
+        }
+
+        .terminal-header {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--terminal-border);
+            background-color: var(--terminal-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .terminal-prompt {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: var(--terminal-fg);
+        }
+
+        .terminal-cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Textarea styles */
+        .textarea {
+            width: 100%;
+            height: 8rem;
+            border: none;
+            background-color: transparent;
+            color: var(--terminal-fg);
+            font-family: monospace;
+            font-size: 1.25rem;
+            line-height: 1.6;
+            padding: 1rem;
+            resize: none;
+            outline: none;
+        }
+
+        .textarea::placeholder {
+            color: color-mix(in srgb, var(--terminal-fg) 60%, transparent);
+        }
+
+        /* Table styles */
+        .table-container {
+            position: relative;
+            width: 100%;
+            overflow: auto;
+        }
+
+        .table {
+            width: 100%;
+            caption-side: bottom;
+            font-size: 0.875rem;
+            border-collapse: collapse;
+        }
+
+        .table thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table tbody tr:last-child {
+            border: 0;
+        }
+
+        .table tr {
+            border-bottom: 1px solid var(--border);
+            transition: colors 0.2s;
+        }
+
+        .table tr:hover {
+            background-color: color-mix(in srgb, var(--muted) 50%, transparent);
+        }
+
+        .table th {
+            height: 3rem;
+            padding: 0 1rem;
+            text-align: left;
+            vertical-align: middle;
+            font-weight: 500;
+            color: var(--muted-foreground);
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        /* Alert styles */
+        .alert {
+            position: relative;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-destructive {
+            border-color: var(--destructive);
+            color: var(--destructive);
+            background-color: color-mix(in srgb, var(--destructive) 10%, transparent);
+        }
+
+        .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Enhanced SQL syntax highlighting with specific colors for different keywords */
+        .sql-select {
+            color: oklch(0.7 0.3 320);
+            /* Magenta for SELECT */
+            font-weight: 700;
+        }
+
+        .sql-from {
+            color: oklch(0.6 0.2 120);
+            /* Green for FROM */
+            font-weight: 600;
+        }
+
+        .sql-join {
+            color: oklch(0.65 0.25 60);
+            /* Orange for JOIN keywords */
+            font-weight: 600;
+        }
+
+        .sql-keyword {
+            color: oklch(0.65 0.25 285);
+            /* Purple for other keywords */
+            font-weight: 600;
+        }
+
+        .sql-string {
+            color: oklch(0.6 0.2 120);
+            /* Green for strings */
+        }
+
+        .sql-number {
+            color: oklch(0.6 0.25 60);
+            /* Orange for numbers */
+        }
+
+        .sql-operator {
+            color: oklch(0.7 0.15 200);
+            /* Blue for operators */
+        }
+
+        /* Success pulse animation */
+        .success-pulse {
+            animation: pulse-success 0.6s ease-out;
+        }
+
+        @keyframes pulse-success {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Utility classes */
+        .primary-color {
+            color: var(--primary);
+        }
+
+        .muted-foreground {
+            color: var(--muted-foreground);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .justify-end {
+            justify-content: flex-end;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-lg {
+            font-size: 1.125rem;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem;
+        }
+
+        .text-3xl {
+            font-size: 1.875rem;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .font-medium {
+            font-weight: 500;
+        }
+
+        .py-2 {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .py-4 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .py-8 {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .px-6 {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .w-4 {
+            width: 1rem;
+        }
+
+        .w-5 {
+            width: 1.25rem;
+        }
+
+        .w-6 {
+            width: 1.5rem;
+        }
+
+        .w-12 {
+            width: 3rem;
+        }
+
+        .w-16 {
+            width: 4rem;
+        }
+
+        .h-4 {
+            height: 1rem;
+        }
+
+        .h-5 {
+            height: 1.25rem;
+        }
+
+        .h-6 {
+            height: 1.5rem;
+        }
+
+        .h-12 {
+            height: 3rem;
+        }
+
+        .rounded-full {
+            border-radius: 9999px;
+        }
+
+        .border-2 {
+            border-width: 2px;
+        }
+    </style>
+</head>
+
+<body class="h-screen grid-pattern flex flex-col overflow-hidden">
+    <!-- Header -->
+    <header class="border-b backdrop-blur-sm flex-shrink-0"
+        style="border-color: color-mix(in srgb, var(--border) 50%, transparent); background-color: color-mix(in srgb, var(--card) 80%, transparent);">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full border-2 flex items-center justify-center"
+                    style="background-color: color-mix(in srgb, var(--primary) 20%, transparent); border-color: var(--primary);">
+                    <!-- Sparkles Icon -->
+                    <svg class="w-6 h-6 primary-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">Query2Dance</h1>
+                    <p class="text-base font-semibold primary-color">Department of Computer Science and Engineering</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 container mx-auto px-6 py-4 overflow-hidden">
+        <div class="h-full flex gap-4">
+            <!-- Left Side - Query Input (60% width) -->
+            <div style="width: 60%; min-width: 0;">
+                <div class="card h-full flex flex-col">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <!-- Database Icon -->
+                            <svg class="w-5 h-5 primary-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                            </svg>
+                            MySQL Query Console
+                        </div>
+                        <div class="card-description">Enter your SQL queries and watch the magic happen</div>
+                    </div>
+                    <div class="card-content flex-1 flex flex-col">
+                        <div class="terminal flex-1">
+                            <div class="terminal-header">
+                                <div class="terminal-prompt">
+                                    <span class="font-semibold primary-color">mysql&gt;</span>
+                                    <span class="terminal-cursor">_</span>
+                                </div>
+                                <div class="text-sm" style="color: var(--terminal-fg);">localhost:3000</div>
+                            </div>
+                            <textarea id="queryInput" class="textarea"
+                                style="height: calc(100% - 3rem); min-height: 300px;"
+                                placeholder="SELECT * FROM human WHERE age > 20;&#10;SELECT * FROM vehical;&#10;SELECT * FROM animal WHERE color = 'white';"></textarea>
+                        </div>
+
+                        <!-- Execute Button -->
+                        <div class="flex items-center gap-4" style="margin-top: 0.75rem; flex-shrink: 0;">
+                            <button id="executeBtn" class="btn btn-primary">
+                                <!-- Play Icon -->
+                                <svg id="playIcon" class="w-4 h-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <polygon points="5,3 19,12 5,21 5,3" />
+                                </svg>
+                                <!-- Spinner Icon -->
+                                <svg id="spinnerIcon" class="w-4 h-4 spinner hidden" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span id="btnText">Execute Query</span>
+                            </button>
+                            <span class="text-sm muted-foreground">Press Enter to execute</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Results (40% width) -->
+            <div style="width: 40%; min-width: 0;">
+                <div class="card h-full flex flex-col">
+                    <div class="card-header flex-shrink-0">
+                        <div class="flex items-center justify-between">
+                            <div class="card-title">
+                                <!-- Music Icon -->
+                                <svg class="w-4 h-4 primary-color" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path d="M9 18V5l12-2v13" />
+                                    <circle cx="6" cy="18" r="3" />
+                                    <circle cx="18" cy="16" r="3" />
+                                </svg>
+                                Query Results
+                            </div>
+                            <div id="resultBadge" class="badge badge-secondary hidden">
+                                <span id="resultCount">0</span> result<span id="resultPlural">s</span>
+                            </div>
+                        </div>
+                        <div class="card-description">Results will appear here with dancing animations</div>
+                    </div>
+                    <div class="card-content flex-1 overflow-auto">
+                        <!-- Error Alert -->
+                        <div id="errorAlert" class="alert alert-destructive hidden">
+                            <div class="alert-content">
+                                <!-- Alert Circle Icon -->
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                <span id="errorMessage"></span>
+                            </div>
+                        </div>
+
+                    <div id="resultsContainer" class="hidden">
+                        <div class="table-container success-pulse">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTableBody">
+                                    <!-- JS will fill this -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+
+                        <!-- Empty State -->
+                        <div id="emptyState" class="text-center py-8">
+                            <div class="text-3xl mb-4">🎭</div>
+                            <div class="font-medium mb-2">Ready to execute your MySQL queries</div>
+                            <div class="text-sm muted-foreground">Enter a query and watch the dolls dance!</div>
+                        </div>
+
+                        <!-- No Results State -->
+                        <div id="noResultsState" class="text-center py-8 hidden">
+                            <div class="text-3xl mb-4">🔍</div>
+                            <div class="font-medium mb-2">No results found</div>
+                            <div class="text-sm muted-foreground">Try a different query</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_KEY = "MY_SECRET_KEY";
+        const BACKEND_URL = "http://localhost:3000";
+
+        let isLoading = false;
+        let results = null;
+
+        // DOM Elements
+        const queryInput = document.getElementById('queryInput');
+        const executeBtn = document.getElementById('executeBtn');
+        const playIcon = document.getElementById('playIcon');
+        const spinnerIcon = document.getElementById('spinnerIcon');
+        const btnText = document.getElementById('btnText');
+        const resultBadge = document.getElementById('resultBadge');
+        const resultCount = document.getElementById('resultCount');
+        const resultPlural = document.getElementById('resultPlural');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsTableBody = document.getElementById('resultsTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const noResultsState = document.getElementById('noResultsState');
+
+        // SQL Syntax Highlighting
+        function highlightSQL(text) {
+            const selectKeywords = /\b(SELECT)\b/gi;
+            const fromKeywords = /\b(FROM)\b/gi;
+            const joinKeywords = /\b(JOIN|LEFT|RIGHT|INNER|OUTER|FULL|CROSS)\b/gi;
+            const otherKeywords = /\b(WHERE|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TABLE|DATABASE|INDEX|ON|AS|AND|OR|NOT|NULL|TRUE|FALSE|LIKE|IN|BETWEEN|ORDER|BY|GROUP|HAVING|LIMIT|OFFSET|UNION|DISTINCT|COUNT|SUM|AVG|MAX|MIN|INTO|VALUES|SET)\b/gi;
+            const strings = /'([^']*)'|"([^"]*)"/g;
+            const numbers = /\b\d+(\.\d+)?\b/g;
+            const operators = /[=<>!]+|[+\-*/]/g;
+
+            return text
+                .replace(selectKeywords, '<span class="sql-select">$&</span>')
+                .replace(fromKeywords, '<span class="sql-from">$&</span>')
+                .replace(joinKeywords, '<span class="sql-join">$&</span>')
+                .replace(otherKeywords, '<span class="sql-keyword">$&</span>')
+                .replace(strings, '<span class="sql-string">$&</span>')
+                .replace(numbers, '<span class="sql-number">$&</span>')
+                .replace(operators, '<span class="sql-operator">$&</span>');
+        }
+
+        // Execute Query Function
+        async function executeQuery() {
+            const query = queryInput.value.trim();
+
+            if (!query) {
+                showError("Please enter a MySQL query");
+                return;
+            }
+
+            setLoading(true);
+            hideError();
+
+            // Trigger confetti effect
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ["#8b5cf6", "#a855f7", "#ffffff", "#06d6a0"],
+                });
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/query`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        API_KEY: API_KEY,
+                    }),
+                });
+
+                const responseData = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(responseData.error || "Query execution failed");
+                }
+
+                // Handle new API response format
+                const resultData = responseData.data || [];
+                const resultCount = responseData.count || 0;
+                const bitstring = responseData.bitstring || "";
+
+                console.log('API Response:', responseData);
+                console.log('Bitstring:', bitstring);
+
+                displayResults(resultData, resultCount, bitstring);
+                playAudio(resultData, resultCount);
+            } catch (error) {
+                showError(error.message || "An error occurred");
+                hideResults();
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Display Results Function
+       function displayResults(data, count, bitstring) {
+            results = { data, count, bitstring };
+
+            // Update badge
+            resultCount.textContent = count;
+            resultPlural.textContent = count !== 1 ? 's' : '';
+            resultBadge.classList.remove('hidden');
+
+            emptyState.classList.add('hidden');
+
+            if (data && data.length > 0) {
+                resultsTableBody.innerHTML = '';
+
+                // Build table header dynamically
+                const keys = Object.keys(data[0]);
+                let headerHTML = '<tr>';
+                keys.forEach(key => {
+                    headerHTML += `<th>${key}</th>`;
+                });
+                headerHTML += '</tr>';
+                resultsTableBody.innerHTML += headerHTML;
+
+                // Build table rows dynamically
+                data.forEach(item => {
+                    let rowHTML = '<tr>';
+                    keys.forEach(key => {
+                        rowHTML += `<td>${item[key]}</td>`;
+                    });
+                    rowHTML += '</tr>';
+                    resultsTableBody.innerHTML += rowHTML;
+                });
+
+                resultsContainer.classList.remove('hidden');
+                noResultsState.classList.add('hidden');
+            } else {
+                resultsContainer.classList.add('hidden');
+                noResultsState.classList.remove('hidden');
+            }
+        }
+
+        // Play Audio Function
+        function playAudio(data, count) {
+            try {
+                if (count === 1 && data && data.length > 0) {
+                    // Use the name from the first data item
+                    const audioName = (data[0].name || data[0]).toLowerCase().replace(/\s+/g, "");
+                    const audio = new Audio(`audio/${audioName}.mp3`);
+                    audio.play().catch(() => {
+                        console.log(`Audio file not found: audio/${audioName}.mp3`);
+                    });
+                } else if (count > 1) {
+                    const audio = new Audio("audio/music.mp3");
+                    audio.play().catch(() => {
+                        console.log("Music file not found: audio/music.mp3");
+                    });
+                }
+            } catch (error) {
+                console.log("Audio playback error:", error);
+            }
+        }
+
+        // Show Error Function
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.classList.remove('hidden');
+        }
+
+        // Hide Error Function
+        function hideError() {
+            errorAlert.classList.add('hidden');
+        }
+
+        // Hide Results Function
+        function hideResults() {
+            resultsContainer.classList.add('hidden');
+            noResultsState.classList.add('hidden');
+            resultBadge.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            results = null;
+        }
+
+        // Set Loading State Function
+        function setLoading(loading) {
+            isLoading = loading;
+            executeBtn.disabled = loading;
+
+            if (loading) {
+                playIcon.classList.add('hidden');
+                spinnerIcon.classList.remove('hidden');
+                btnText.textContent = 'Executing...';
+            } else {
+                playIcon.classList.remove('hidden');
+                spinnerIcon.classList.add('hidden');
+                btnText.textContent = 'Execute Query';
+            }
+        }
+
+        // Event Listeners
+        executeBtn.addEventListener('click', executeQuery);
+
+        queryInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+                e.preventDefault();
+                executeQuery();
+            }
+        });
+
+        // Initialize the page
+        hideResults();
+        hideError();
+    </script>
+</body>
+
+</html>

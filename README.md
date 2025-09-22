@@ -19,8 +19,8 @@ graph LR
     style C fill:#e8f5e8
     style D fill:#fff3e0
     style E fill:#f1f8e9
-</div> 
-```
+
+</div>```
 
 ## ⚡ How It Works
 

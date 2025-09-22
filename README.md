@@ -18,13 +18,13 @@ graph TD
     F -.->|Status| J[Confirmation]
     J -->|Response| B
     
-    classDef input fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef backend fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef database fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef processing fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef hardware fill:#fce4ec,stroke:#c2185b,stroke-width:2px
-    classDef physical fill:#f1f8e9,stroke:#689f38,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    classDef input fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#000000
+    classDef backend fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000000
+    classDef database fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#000000
+    classDef processing fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000000
+    classDef hardware fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#000000
+    classDef physical fill:#f1f8e9,stroke:#689f38,stroke-width:2px,color:#000000
+    classDef error fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000000
     
     class A input
     class B,D,E backend

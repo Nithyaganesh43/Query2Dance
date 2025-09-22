@@ -632,21 +632,21 @@
                             </div>
                         </div>
 
-                    <div id="resultsContainer" class="hidden">
-                        <div class="table-container success-pulse">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="resultsTableBody">
-                                    <!-- JS will fill this -->
-                                </tbody>
-                            </table>
+                        <div id="resultsContainer" class="hidden">
+                            <div class="table-container success-pulse">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultsTableBody">
+                                        <!-- JS will fill this -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
 
 
                         <!-- Empty State -->
@@ -770,7 +770,7 @@
         }
 
         // Display Results Function
-       function displayResults(data, count, bitstring) {
+        function displayResults(data, count, bitstring) {
             results = { data, count, bitstring };
 
             // Update badge
@@ -850,8 +850,7 @@
             emptyState.classList.remove('hidden');
             results = null;
         }
-
-        // Set Loading State Function
+ 
         function setLoading(loading) {
             isLoading = loading;
             executeBtn.disabled = loading;
@@ -866,8 +865,7 @@
                 btnText.textContent = 'Execute Query';
             }
         }
-
-        // Event Listeners
+ 
         executeBtn.addEventListener('click', executeQuery);
 
         queryInput.addEventListener('keydown', (e) => {
@@ -876,8 +874,7 @@
                 executeQuery();
             }
         });
-
-        // Initialize the page
+ 
         hideResults();
         hideError();
     </script>

@@ -1,48 +1,35 @@
-const WebSocket = require('ws');
+const WebSocket=require('ws');
 
-// change if server runs elsewhere
-const SERVER_URL = 'ws://localhost:3000';
+const SERVER_URL='wss://query2dance.onrender.com/ws';
 
 let ws;
 
-function connect() {
-  ws = new WebSocket(SERVER_URL);
+function connect(){
+ ws=new WebSocket(SERVER_URL);
 
-  ws.on('open', () => {
-    console.log('✅ Mock ESP connected to server');
+ ws.on('open',()=>{
+  console.log('✅ connected');
 
-    // send heartbeat every 10s (optional)
-    setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'heartbeat', ts: Date.now() }));
-      }
-    }, 10000);
-  });
+  setInterval(()=>{
+   if(ws.readyState===WebSocket.OPEN){
+    ws.send(JSON.stringify({type:'heartbeat'}));
+   }
+  },10000);
+ });
 
-  ws.on('message', (data) => {
-    try {
-      const msg = JSON.parse(data);
-      console.log('📥 Command from server:', msg);
+ ws.on('message',data=>{
+  const msg=JSON.parse(data);
+  console.log('📥',msg);
+ });
 
-      if (msg.type === 'cmd') {
-        console.log('🎯 Bitstring:', msg.bitstring);
-        console.log('💡 Light1:', msg.light1);
-        console.log('💡 Light2:', msg.light2);
-      }
+ ws.on('close',()=>{
+  console.log('reconnecting...');
+  setTimeout(connect,3000);
+ });
 
-    } catch (e) {
-      console.log('Raw message:', data.toString());
-    }
-  });
-
-  ws.on('close', () => {
-    console.log('❌ Disconnected. Reconnecting...');
-    setTimeout(connect, 3000);
-  });
-
-  ws.on('error', (err) => {
-    console.error('Socket error:', err.message);
-  });
+ ws.on('error',err=>{
+  console.log('error:',err.message);
+ });
 }
 
 connect();

@@ -72,8 +72,15 @@
         /* Layout */
         .layout {
             display: grid;
-            grid-template-columns: 248px 1fr;
+            grid-template-columns: 248px minmax(0, 1400px);
             min-height: 100vh;
+            justify-content: start;
+        }
+
+        @media (min-width: 1800px) {
+            .layout {
+                justify-content: center;
+            }
         }
 
         /* Sidebar */
@@ -230,6 +237,105 @@
             font-size: 14px;
             max-width: 520px;
             line-height: 1.8;
+        }
+
+        /* Database Schema Section */
+        .db-schema {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .db-schema-title {
+            font-family: var(--display);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--c-purple);
+        }
+
+        .db-tables {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .db-table {
+            background: var(--terminal-bg);
+            border: 1px solid var(--terminal-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .db-table-header {
+            background: var(--terminal-muted);
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--terminal-border);
+            font-weight: 700;
+            font-size: 11px;
+            color: var(--c-purple);
+            letter-spacing: 1px;
+        }
+
+        .db-table-body {
+            padding: 12px 14px;
+        }
+
+        .db-column {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 11px;
+            color: var(--terminal-fg);
+        }
+
+        .db-column-name {
+            color: var(--c-teal);
+            font-weight: 600;
+        }
+
+        .db-column-type {
+            color: var(--c-amber);
+            font-size: 10px;
+        }
+
+        .db-column-pk {
+            background: var(--c-purple);
+            color: white;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .db-column-fk {
+            background: var(--c-teal);
+            color: white;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .db-sample-data {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--terminal-border);
+        }
+
+        .db-sample-title {
+            font-size: 9px;
+            color: var(--muted-foreground);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        .db-sample-row {
+            font-size: 10px;
+            color: var(--c-green);
+            padding: 2px 0;
         }
 
         /* Section */
@@ -882,6 +988,18 @@
             .rules-grid {
                 grid-template-columns: 1fr;
             }
+
+            .db-tables {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-list {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -896,8 +1014,17 @@
                 <div class="brand-name">Query2Dance</div>
                 <div class="brand-sub">SQL Query Guide</div>
             </div>
+            <a href="index.html"
+                style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; margin: 0.5rem 1rem; background-color: var(--primary); color: var(--primary-foreground); border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem; transition: all 0.2s;">
+                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Dashboard
+            </a>
             <nav class="nav">
                 <span class="nav-label">Guide</span>
+                <a href="#database"><span class="ni">🗄️</span>Database Schema</a>
                 <a href="#overview"><span class="ni">🎯</span>Overview</a>
                 <a href="#rules"><span class="ni">🟢</span>Rules</a>
                 <a href="#basics"><span class="ni">🧩</span>Basic Queries</a>
@@ -921,6 +1048,183 @@
                 <h1>Control dolls with<br /><span>SELECT queries</span></h1>
                 <p>Write SQL to control physical dolls (IDs 1–10), lights, and audio behavior in real time. Your query's
                     output directly drives the system.</p>
+            </section>
+
+            <!-- Database Schema -->
+            <section class="section" id="database">
+                <div class="section-header">
+                    <div class="section-icon">🗄️</div>
+                    <div>
+                        <div class="section-sub">Available Tables</div>
+                        <div class="section-title">Database Schema</div>
+                    </div>
+                </div>
+
+                <div class="db-schema">
+                    <div class="db-schema-title">Query these tables to control the system</div>
+                    <div class="db-tables">
+
+                        <!-- Human Table -->
+                        <div class="db-table">
+                            <div class="db-table-header">👤 HUMAN</div>
+                            <div class="db-table-body">
+                                <div class="db-column">
+                                    <span class="db-column-pk">PK</span>
+                                    <span class="db-column-name">id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">name</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">age</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">gender</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-fk">FK</span>
+                                    <span class="db-column-name">fav_food_id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-fk">FK</span>
+                                    <span class="db-column-name">fav_animal_id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-fk">FK</span>
+                                    <span class="db-column-name">vehicle_id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-sample-data">
+                                    <div class="db-sample-title">SAMPLE DATA:</div>
+                                    <div class="db-sample-row">3 | priya | 20 | female</div>
+                                    <div class="db-sample-row">5 | abi | 21 | female</div>
+                                    <div class="db-sample-row">10 | sana | 22 | female</div>
+                                    <div class="db-sample-row">9 | saro | 23 | male</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehicle Table -->
+                        <div class="db-table">
+                            <div class="db-table-header">🚗 VEHICLE</div>
+                            <div class="db-table-body">
+                                <div class="db-column">
+                                    <span class="db-column-pk">PK</span>
+                                    <span class="db-column-name">id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">name</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-fk">FK</span>
+                                    <span class="db-column-name">owner_id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">wheel_count</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">type</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">number</span>
+                                    <span class="db-column-type">TEXT UNIQUE</span>
+                                </div>
+                                <div class="db-sample-data">
+                                    <div class="db-sample-title">SAMPLE DATA:</div>
+                                    <div class="db-sample-row">1 | bike | TN02CB5678</div>
+                                    <div class="db-sample-row">2 | car | TN01AB1234</div>
+                                    <div class="db-sample-row">4 | bus | TN03EF9876</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Animal Table -->
+                        <div class="db-table">
+                            <div class="db-table-header">🦌 ANIMAL</div>
+                            <div class="db-table-body">
+                                <div class="db-column">
+                                    <span class="db-column-pk">PK</span>
+                                    <span class="db-column-name">id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">name</span>
+                                    <span class="db-column-type">TEXT UNIQUE</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">food</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">color</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-sample-data">
+                                    <div class="db-sample-title">SAMPLE DATA:</div>
+                                    <div class="db-sample-row">6 | deer | leaves | brown</div>
+                                    <div class="db-sample-row">7 | rhino | plants | grey</div>
+                                    <div class="db-sample-row">8 | cow | grass | white</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Food Table -->
+                        <div class="db-table">
+                            <div class="db-table-header">🍕 FOOD</div>
+                            <div class="db-table-body">
+                                <div class="db-column">
+                                    <span class="db-column-pk">PK</span>
+                                    <span class="db-column-name">id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">name</span>
+                                    <span class="db-column-type">TEXT UNIQUE</span>
+                                </div>
+                                <div class="db-sample-data">
+                                    <div class="db-sample-title">SAMPLE DATA:</div>
+                                    <div class="db-sample-row">101 | pizza</div>
+                                    <div class="db-sample-row">102 | burger</div>
+                                    <div class="db-sample-row">103 | pasta</div>
+                                    <div class="db-sample-row">104 | noodles</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Light Table -->
+                        <div class="db-table">
+                            <div class="db-table-header">💡 LIGHT</div>
+                            <div class="db-table-body">
+                                <div class="db-column">
+                                    <span class="db-column-pk">PK</span>
+                                    <span class="db-column-name">id</span>
+                                    <span class="db-column-type">INTEGER</span>
+                                </div>
+                                <div class="db-column">
+                                    <span class="db-column-name">name</span>
+                                    <span class="db-column-type">TEXT</span>
+                                </div>
+                                <div class="db-sample-data">
+                                    <div class="db-sample-title">SAMPLE DATA:</div>
+                                    <div class="db-sample-row">11 | light 1</div>
+                                    <div class="db-sample-row">12 | light 2</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </section>
 
             <!-- Overview -->
@@ -1048,7 +1352,8 @@
                     <div class="rule"><span class="ri">✅</span>Use <code>UNION</code> to combine multiple actions</div>
                     <div class="rule"><span class="ri">✅</span>Multiple <code>SELECT</code>s → one combined result</div>
                     <div class="rule"><span class="ri">✅</span>Spell light names exactly: <code>'light 1'</code>,
-                        <code>'light 2'</code></div>
+                        <code>'light 2'</code>
+                    </div>
                 </div>
             </section>
 
@@ -1452,7 +1757,8 @@
                                     onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5);')">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
                                     class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
-                                <span class="num">5</span>);</div>
+                                <span class="num">5</span>);
+                            </div>
                         </div>
                         <div class="demo-card">
                             <div class="demo-head">
@@ -1479,7 +1785,8 @@
                                     onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human<br /><span
                                     class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
-                                <span class="num">5</span>, <span class="num">10</span>);</div>
+                                <span class="num">5</span>, <span class="num">10</span>);
+                            </div>
                         </div>
                         <div class="demo-card">
                             <div class="demo-head">
@@ -1519,7 +1826,8 @@
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
                                     class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
                                 <span class="num">5</span>)<br /><span class="kw">UNION</span><br /><span
-                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;</div>
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;
+                            </div>
                         </div>
                         <div class="demo-card">
                             <div class="demo-head">
@@ -1583,9 +1891,11 @@
                     <div class="rule bad"><span class="ri">❌</span>Missing <code>id</code> column — dolls won't move
                     </div>
                     <div class="rule bad"><span class="ri">❌</span>Using <code>INSERT</code>, <code>UPDATE</code>, or
-                        <code>DELETE</code></div>
+                        <code>DELETE</code>
+                    </div>
                     <div class="rule bad"><span class="ri">❌</span>Wrong light name — must be exactly
-                        <code>'light 1'</code></div>
+                        <code>'light 1'</code>
+                    </div>
                     <div class="rule bad"><span class="ri">❌</span>Multiple separate queries — use <code>UNION</code>
                         instead</div>
                 </div>
@@ -1624,17 +1934,20 @@
                                 style="padding:8px 12px;background:oklch(0.65 0.25 285 / 0.07);border:1px solid oklch(0.65 0.25 285 / 0.18);border-radius:calc(var(--radius) - 4px);">
                                 <span style="color:var(--c-purple);font-weight:700;">Dolls</span> <span
                                     style="color:var(--muted-foreground)">→ returned</span> <code>id</code> <span
-                                    style="color:var(--muted-foreground)">(1–10)</span></div>
+                                    style="color:var(--muted-foreground)">(1–10)</span>
+                            </div>
                             <div
                                 style="padding:8px 12px;background:oklch(0.6 0.25 60 / 0.07);border:1px solid oklch(0.6 0.25 60 / 0.2);border-radius:calc(var(--radius) - 4px);">
                                 <span style="color:oklch(0.4 0.2 55);font-weight:700;">Lights</span> <span
                                     style="color:var(--muted-foreground)">→ <code>name</code> = <code>'light 1'</code>
-                                    or <code>'light 2'</code></span></div>
+                                    or <code>'light 2'</code></span>
+                            </div>
                             <div
                                 style="padding:8px 12px;background:oklch(0.6 0.2 200 / 0.07);border:1px solid oklch(0.6 0.2 200 / 0.2);border-radius:calc(var(--radius) - 4px);">
                                 <span style="color:oklch(0.4 0.18 200);font-weight:700;">Audio</span> <span
                                     style="color:var(--muted-foreground)">→ 1 row = specific, &gt;1 = music, 0 =
-                                    silence</span></div>
+                                    silence</span>
+                            </div>
                         </div>
                     </div>
                     <div class="card">

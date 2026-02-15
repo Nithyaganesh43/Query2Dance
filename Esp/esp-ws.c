@@ -8,7 +8,7 @@ const char* WIFI_SSID="Sorry";
 const char* WIFI_PASS="aaaaaaaa";
 
 // ================= WS SERVER =================
-const char* WS_HOST="dbmszoo2025.onrender.com";
+const char* WS_HOST="query2dance.onrender.com";
 const uint16_t WS_PORT=80;
 const char* WS_PATH="/";   // Render uses root path
 

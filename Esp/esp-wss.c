@@ -9,7 +9,7 @@ const char* WIFI_SSID="Sorry";
 const char* WIFI_PASS="aaaaaaaa";
 
 // ================= RENDER WSS =================
-const char* WS_HOST="dbmszoo2025.onrender.com";
+const char* WS_HOST="query2dance.onrender.com";
 const uint16_t WS_PORT=443;
 const char* WS_PATH="/";
 

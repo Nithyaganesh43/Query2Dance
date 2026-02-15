@@ -524,14 +524,12 @@
 </head>
 
 <body class="h-screen grid-pattern flex flex-col overflow-hidden">
-    <!-- Header -->
     <header class="border-b backdrop-blur-sm flex-shrink-0"
         style="border-color: color-mix(in srgb, var(--border) 50%, transparent); background-color: color-mix(in srgb, var(--card) 80%, transparent);">
         <div class="container mx-auto px-6 py-4">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full border-2 flex items-center justify-center"
                     style="background-color: color-mix(in srgb, var(--primary) 20%, transparent); border-color: var(--primary);">
-                    <!-- Sparkles Icon -->
                     <svg class="w-6 h-6 primary-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
                     </svg>
@@ -546,12 +544,10 @@
 
     <main class="flex-1 container mx-auto px-6 py-4 overflow-hidden">
         <div class="h-full flex gap-4">
-            <!-- Left Side - Query Input (60% width) -->
             <div style="width: 60%; min-width: 0;">
                 <div class="card h-full flex flex-col">
                     <div class="card-header">
                         <div class="card-title">
-                            <!-- Database Icon -->
                             <svg class="w-5 h-5 primary-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <ellipse cx="12" cy="5" rx="9" ry="3" />
                                 <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
@@ -571,19 +567,17 @@
                                 <div class="text-sm" style="color: var(--terminal-fg);">localhost:3000</div>
                             </div>
                             <textarea id="queryInput" class="textarea"
-                                style="height: calc(100% - 3rem); min-height: 300px;"
-                                placeholder="SELECT * FROM human WHERE age > 20;&#10;SELECT * FROM vehical;&#10;SELECT * FROM animal WHERE color = 'white';"></textarea>
+                                style="height: calc(100% - 3rem); min-height: 300px;" placeholder="SELECT * FROM human WHERE age > 20;
+SELECT * FROM vehical;
+SELECT * FROM animal WHERE color = 'white';"></textarea>
                         </div>
 
-                        <!-- Execute Button -->
                         <div class="flex items-center gap-4" style="margin-top: 0.75rem; flex-shrink: 0;">
                             <button id="executeBtn" class="btn btn-primary">
-                                <!-- Play Icon -->
                                 <svg id="playIcon" class="w-4 h-4" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <polygon points="5,3 19,12 5,21 5,3" />
                                 </svg>
-                                <!-- Spinner Icon -->
                                 <svg id="spinnerIcon" class="w-4 h-4 spinner hidden" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -597,13 +591,11 @@
                 </div>
             </div>
 
-            <!-- Right Side - Results (40% width) -->
             <div style="width: 40%; min-width: 0;">
                 <div class="card h-full flex flex-col">
                     <div class="card-header flex-shrink-0">
                         <div class="flex items-center justify-between">
                             <div class="card-title">
-                                <!-- Music Icon -->
                                 <svg class="w-4 h-4 primary-color" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path d="M9 18V5l12-2v13" />
@@ -619,10 +611,8 @@
                         <div class="card-description">Results will appear here with dancing animations</div>
                     </div>
                     <div class="card-content flex-1 overflow-auto">
-                        <!-- Error Alert -->
                         <div id="errorAlert" class="alert alert-destructive hidden">
                             <div class="alert-content">
-                                <!-- Alert Circle Icon -->
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="10" />
                                     <line x1="12" y1="8" x2="12" y2="12" />
@@ -642,21 +632,18 @@
                                         </tr>
                                     </thead>
                                     <tbody id="resultsTableBody">
-                                        <!-- JS will fill this -->
                                     </tbody>
                                 </table>
                             </div>
                         </div>
 
 
-                        <!-- Empty State -->
                         <div id="emptyState" class="text-center py-8">
                             <div class="text-3xl mb-4">🎭</div>
                             <div class="font-medium mb-2">Ready to execute your MySQL queries</div>
                             <div class="text-sm muted-foreground">Enter a query and watch the dolls dance!</div>
                         </div>
 
-                        <!-- No Results State -->
                         <div id="noResultsState" class="text-center py-8 hidden">
                             <div class="text-3xl mb-4">🔍</div>
                             <div class="font-medium mb-2">No results found</div>
@@ -674,6 +661,7 @@
 
         let isLoading = false;
         let results = null;
+        let currentAudio = null;
 
         // DOM Elements
         const queryInput = document.getElementById('queryInput');
@@ -811,25 +799,90 @@
         }
 
         // Play Audio Function
-        function playAudio(data, count) {
+        async function playAudio(data, count) {
+            // Stop any currently playing audio
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            const REFRESH_DELAY_MS = 30000; // 30 seconds before refresh
+            const generalAudioPath = "audio/general.mp3";
+
+            // Set timeout to refresh page after 30 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, REFRESH_DELAY_MS);
+
             try {
                 if (count === 1 && data && data.length > 0) {
-                    // Use the name from the first data item
+                    // SINGLE AUDIO: Play specific audio 2 times, then play general audio
                     const audioName = (data[0].name || data[0]).toLowerCase().replace(/\s+/g, "");
-                    const audio = new Audio(`audio/${audioName}.mp3`);
-                    audio.play().catch(() => {
-                        console.log(`Audio file not found: audio/${audioName}.mp3`);
-                    });
-                } else if (count > 1) {
-                    const audio = new Audio("audio/music.mp3");
-                    audio.play().catch(() => {
-                        console.log("Music file not found: audio/music.mp3");
-                    });
+                    const filePath = `audio/${audioName}.mp3`;
+                    
+                    // Play single audio twice
+                    await playSingleAudioTwice(filePath);
+                    
+                    // Then play general audio
+                    const generalAudio = new Audio(generalAudioPath);
+                    currentAudio = generalAudio;
+                    generalAudio.loop = true;
+                    await generalAudio.play();
+                    
+                } else {
+                    // GENERAL AUDIO: Play general audio once (looped)
+                    const generalAudio = new Audio(generalAudioPath);
+                    currentAudio = generalAudio;
+                    generalAudio.loop = true;
+                    await generalAudio.play();
                 }
+
             } catch (error) {
-                console.log("Audio playback error:", error);
+                console.error("Audio playback error:", error);
+                // Fallback: play general audio
+                try {
+                    const generalAudio = new Audio(generalAudioPath);
+                    currentAudio = generalAudio;
+                    generalAudio.loop = true;
+                    await generalAudio.play();
+                } catch (e) {
+                    console.error("Error with fallback audio:", e);
+                }
             }
         }
+
+        // Helper function to play single audio twice
+        async function playSingleAudioTwice(filePath) {
+            return new Promise((resolve, reject) => {
+                let playCount = 0;
+                
+                function playAudioOnce() {
+                    const audio = new Audio(filePath);
+                    currentAudio = audio;
+                    
+                    audio.addEventListener('ended', () => {
+                        playCount++;
+                        if (playCount < 2) {
+                            // Play again (second time)
+                            playAudioOnce();
+                        } else {
+                            // Done playing twice
+                            resolve();
+                        }
+                    });
+                    
+                    audio.addEventListener('error', (e) => {
+                        console.error("Error playing single audio:", e);
+                        reject(e);
+                    });
+                    
+                    audio.play().catch(reject);
+                }
+                
+                playAudioOnce();
+            });
+        }
+
 
         // Show Error Function
         function showError(message) {
@@ -850,7 +903,7 @@
             emptyState.classList.remove('hidden');
             results = null;
         }
- 
+
         function setLoading(loading) {
             isLoading = loading;
             executeBtn.disabled = loading;
@@ -865,7 +918,7 @@
                 btnText.textContent = 'Execute Query';
             }
         }
- 
+
         executeBtn.addEventListener('click', executeQuery);
 
         queryInput.addEventListener('keydown', (e) => {
@@ -874,7 +927,7 @@
                 executeQuery();
             }
         });
- 
+
         hideResults();
         hideError();
     </script>

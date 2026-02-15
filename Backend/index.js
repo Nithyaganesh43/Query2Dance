@@ -1,108 +1,207 @@
+// server.js
 const express = require('express');
-const mysql = require('mysql2/promise');
-const axios = require('axios');
+const cors = require('cors');
+const sqlite3 = require('sqlite3').verbose();
+const http = require('http');
+const WebSocket = require('ws');
 
 const app = express();
 app.use(express.json());
-
-const API_KEY = 'MY_SECRET_KEY';
-const ESP_IP = 'http://192.168.1.100';
-
-const cors = require('cors');
 app.use(cors());
 
-const db = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'Nithyaganesh@123',
-  database: 'toys_db',
+// Config
+const PORT = 3000;
+const API_KEY = 'MY_SECRET_KEY';
+const DB_PATH = './Backend/toys.db';
+
+// -----------------------------------------------------------------------------
+// Database Setup (SQLite)
+// -----------------------------------------------------------------------------
+const db = new sqlite3.Database(DB_PATH);
+
+function initDatabase() {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      // 1. Reset tables (Drop in correct order)
+      db.run("PRAGMA foreign_keys = OFF;"); 
+      db.run("DROP TABLE IF EXISTS human");
+      db.run("DROP TABLE IF EXISTS vehicle");
+      db.run("DROP TABLE IF EXISTS animal");
+      db.run("DROP TABLE IF EXISTS food");
+      db.run("DROP TABLE IF EXISTS light");
+      
+      // 2. Create Tables & Insert Data
+      
+      // Light
+      db.run("CREATE TABLE light (id INTEGER PRIMARY KEY, name TEXT NOT NULL)");
+      const stmtLight = db.prepare("INSERT INTO light (id, name) VALUES (?, ?)");
+      [[11, 'light 1'], [12, 'light 2']].forEach(r => stmtLight.run(r));
+      stmtLight.finalize();
+
+      // Food
+      db.run("CREATE TABLE food (id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
+      const stmtFood = db.prepare("INSERT INTO food (id, name) VALUES (?, ?)");
+      [[101, 'pizza'], [102, 'burger'], [103, 'pasta'], [104, 'noodles']].forEach(r => stmtFood.run(r));
+      stmtFood.finalize();
+
+      // Animal
+      db.run("CREATE TABLE animal (id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, food TEXT NOT NULL, color TEXT NOT NULL)");
+      const stmtAnimal = db.prepare("INSERT INTO animal (id, name, food, color) VALUES (?, ?, ?, ?)");
+      [[8, 'cow', 'grass', 'white'], [6, 'deer', 'leaves', 'brown'], [7, 'rhino', 'plants', 'grey']].forEach(r => stmtAnimal.run(r));
+      stmtAnimal.finalize();
+
+      // Human
+      db.run(`CREATE TABLE human (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        age INTEGER NOT NULL,
+        gender TEXT NOT NULL,
+        fav_food_id INTEGER,
+        fav_animal_id INTEGER,
+        vehicle_id INTEGER,
+        FOREIGN KEY (fav_food_id) REFERENCES food(id),
+        FOREIGN KEY (fav_animal_id) REFERENCES animal(id)
+      )`);
+      const stmtHuman = db.prepare("INSERT INTO human (id, name, age, gender, fav_food_id, fav_animal_id, vehicle_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+      // Note: vehicle_id is null initially
+      [[3, 'priya', 20, 'female', 101, 6, null],
+       [5, 'abi',   21, 'female', 102, 6, null],
+       [10,'sana',  22, 'female', 103, 7, null],
+       [9, 'saro',  23, 'male',   104, 7, null]].forEach(r => stmtHuman.run(r));
+      stmtHuman.finalize();
+
+      // Vehicle
+      db.run(`CREATE TABLE vehicle (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        owner_id INTEGER,
+        wheel_count INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        number TEXT UNIQUE NOT NULL,
+        FOREIGN KEY (owner_id) REFERENCES human(id)
+      )`);
+      const stmtVehicle = db.prepare("INSERT INTO vehicle (id, name, owner_id, wheel_count, type, number) VALUES (?, ?, ?, ?, ?, ?)");
+      [[2, 'car',  5,  4, 'car',  'TN01AB1234'],
+       [1, 'bike', 3,  2, 'bike', 'TN02CB5678'],
+       [4, 'bus',  10, 6, 'bus',  'TN03EF9876']].forEach(r => stmtVehicle.run(r));
+      stmtVehicle.finalize();
+
+      // 3. Update circular references
+      db.run("UPDATE human SET vehicle_id = 2 WHERE id = 5");
+      db.run("UPDATE human SET vehicle_id = 1 WHERE id = 3");
+      db.run("UPDATE human SET vehicle_id = 4 WHERE id = 10");
+
+      console.log('Database initialized and seeded.');
+      resolve();
+    });
+  });
+}
+
+// -----------------------------------------------------------------------------
+// WebSocket & HTTP Server
+// -----------------------------------------------------------------------------
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+let espSocket = null; // Store the ESP connection
+
+wss.on('connection', (ws, req) => {
+  console.log(`New WS Client connected: ${req.socket.remoteAddress}`);
+  
+  // Assuming the ESP is the only client or we treat the last connected client as ESP for simplicity
+  espSocket = ws;
+
+  ws.on('message', (message) => {
+    console.log(`Received from ESP: ${message}`);
+    // Keep-alive or ack logic if needed
+  });
+
+  ws.on('close', () => {
+    console.log('WS Client disconnected');
+    if (espSocket === ws) espSocket = null;
+  });
+
+  ws.on('error', (err) => {
+    console.error('WS error:', err.message);
+  });
+  
+  // Send a ping/hello to confirm connection
+  ws.send(JSON.stringify({ type: 'status', msg: 'Connected to Server' }));
 });
 
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
 const dollOrder = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 
+function buildBitstring(rows) {
+  const ids = rows.map((r) => String(r.id));
+  return dollOrder.map((id) => (ids.includes(id) ? '1' : '0')).join('');
+}
+
+function hasLight(rows, name) {
+  const target = name.toLowerCase();
+  return rows.some((r) => String(r.name || '').toLowerCase() === target);
+}
+
+// -----------------------------------------------------------------------------
+// API Routes
+// -----------------------------------------------------------------------------
 app.post('/query', async (req, res) => {
   const { query, API_KEY: clientKey } = req.body;
-  if (clientKey !== API_KEY)
+  if (clientKey !== API_KEY) {
     return res.status(401).json({ error: 'Invalid key' });
-
-  try {
- const [rows] = await db.execute(query);
-
- const ids = rows.map((row) => String(row.id));
- const bitstring = dollOrder
-   .map((id) => (ids.includes(id) ? '1' : '0'))
-   .join('');
-
- res.json({ data: rows, count: rows.length, bitstring });
-
-    setImmediate(async () => {
-      try {
-        await axios.post(`${ESP_IP}/setcmd/${bitstring}`);
-      } catch (err) {
-        console.error('ESP call failed:', err.message, ' for : ', bitstring);
-      }
-    });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
   }
+  if (!query || typeof query !== 'string') {
+    return res.status(400).json({ error: 'Missing SQL query' });
+  }
+
+  // Execute query against SQLite
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('SQL Error:', err.message);
+      return res.status(400).json({ error: err.message });
+    }
+    
+    // Process results
+    const bitstring = buildBitstring(rows || []);
+    const count = rows ? rows.length : 0;
+    
+    // 1. Respond to Frontend immediately (unchanged contract)
+    res.json({ data: rows, count, bitstring });
+
+    // 2. Send command to ESP via WebSocket
+    if (espSocket && espSocket.readyState === WebSocket.OPEN) {
+      const light1 = hasLight(rows || [], 'light 1');
+      const light2 = hasLight(rows || [], 'light 2');
+
+      const payload = {
+        type: 'cmd',
+        bitstring: bitstring,
+        light1: light1,
+        light2: light2
+      };
+
+      try {
+        espSocket.send(JSON.stringify(payload));
+        console.log('Sent to ESP:', JSON.stringify(payload));
+      } catch (e) {
+        console.error('WS Send error:', e.message);
+      }
+    } else {
+      console.warn('ESP not connected or socket closed. Command not sent.');
+    }
+  });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.get('/health', (_req, res) => res.json({ ok: true }));
 
-
-// CREATE DATABASE toys_db;
-// USE toys_db;
-
-// CREATE TABLE human (
-//   id INT PRIMARY KEY,
-//   name VARCHAR(50),
-//   age INT,
-//   gender ENUM('male','female'),
-//   vehical INT,
-//   favanimal INT,
-//   favfood VARCHAR(50)
-// );
-
-// CREATE TABLE vehical (
-//   id INT PRIMARY KEY,
-//   name VARCHAR(50),
-//   owner INT,
-//   nowheel INT,
-//   type ENUM('car','bike','bus'),
-//   number VARCHAR(20)
-// );
-
-// CREATE TABLE animal (
-//   id INT PRIMARY KEY,
-//   name VARCHAR(50),
-//   food VARCHAR(50),
-//   color VARCHAR(20)
-// );
-
-// INSERT INTO human (id, name, age, gender, vehical, favanimal, favfood) VALUES
-// (1, 'priya', 20, 'female', 4, 7, 'pizza'),
-// (2, 'abi', 21, 'female', 5, 8, 'burger'),
-// (3, 'sana', 22, 'female', 6, 9, 'pasta'),
-// (4, 'saro', 23, 'male', 4, 7, 'noodles');
-
-// INSERT INTO vehical (id, name, owner, nowheel, type, number) VALUES
-// (5, 'car', 1, 4, 'car', 'TN01AB1234'),
-// (6, 'bike', 2, 2, 'bike', 'TN02CD5678'),
-// (7, 'bus', 3, 4, 'bus', 'TN03EF9876');
-
-// INSERT INTO animal (id, name, food, color) VALUES
-// (8, 'cow', 'grass', 'white'),
-// (9, 'deer', 'leaves', 'brown'),
-// (10, 'raino', 'plants', 'grey');
-
- 
-
-// The core idea of this system is to connect a fixed database of dolls, vehicles,
-//  and animals to a backend server that dynamically interprets queries and translates 
-// them into real-world actions. The database acts as a structured repository of all
-//  entities and their attributes, while the Express backend serves as the bridge between 
-// data and physical devices. When a frontend sends a query for specific dolls, the backend 
-// executes it, generates a corresponding bitstring representing which dolls should act,
-//  and immediately triggers the ESP-controlled servos asynchronously. This design allows 
-// real-time physical interaction based on database queries, keeping the backend responsive,
-//  ensuring frontend stability, and integrating the virtual data world with tangible robotic actions.
+// -----------------------------------------------------------------------------
+// Start Server
+// -----------------------------------------------------------------------------
+initDatabase().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`WebSocket server ready on ws://localhost:${PORT}`);
+  });
+});

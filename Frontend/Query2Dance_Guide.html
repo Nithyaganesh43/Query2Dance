@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Query2Dance — SQL Query Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --background: oklch(0.98 0 0);
+            --foreground: oklch(0.15 0 0);
+            --card: oklch(0.96 0 0);
+            --card-foreground: oklch(0.15 0 0);
+            --primary: oklch(0.65 0.25 285);
+            --primary-foreground: oklch(0.98 0 0);
+            --secondary: oklch(0.92 0 0);
+            --muted: oklch(0.94 0 0);
+            --muted-foreground: oklch(0.45 0 0);
+            --accent: oklch(0.65 0.25 285);
+            --destructive: oklch(0.65 0.25 15);
+            --border: oklch(0.88 0 0);
+            --ring: oklch(0.65 0.25 285);
+            --radius: 0.75rem;
+            --sidebar: oklch(0.96 0 0);
+            --sidebar-border: oklch(0.88 0 0);
+
+            /* Terminal dark */
+            --terminal-bg: oklch(0.08 0 0);
+            --terminal-fg: oklch(0.85 0 0);
+            --terminal-border: oklch(0.25 0 0);
+            --terminal-muted: oklch(0.13 0 0);
+
+            /* Chart accent shorthands */
+            --c-purple: oklch(0.65 0.25 285);
+            --c-teal: oklch(0.6 0.2 200);
+            --c-green: oklch(0.7 0.2 120);
+            --c-amber: oklch(0.6 0.25 60);
+            --c-pink: oklch(0.65 0.2 320);
+            --c-red: oklch(0.65 0.25 15);
+
+            --mono: 'Space Mono', monospace;
+            --display: 'Syne', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--foreground);
+            font-family: var(--mono);
+            font-size: 14px;
+            line-height: 1.7;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 248px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--sidebar);
+            border-right: 1px solid var(--sidebar-border);
+            padding: 32px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .sidebar-brand {
+            padding: 0 24px 28px;
+            border-bottom: 1px solid var(--sidebar-border);
+            margin-bottom: 8px;
+        }
+
+        .brand-tag {
+            font-size: 10px;
+            color: var(--c-purple);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .brand-name {
+            font-family: var(--display);
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--c-purple);
+            line-height: 1.2;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            margin-top: 4px;
+        }
+
+        .nav {
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            padding: 12px 24px 4px;
+        }
+
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 24px;
+            color: var(--muted-foreground);
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.15s;
+            border-left: 2px solid transparent;
+        }
+
+        .nav a:hover {
+            color: var(--foreground);
+            background: var(--secondary);
+            border-left-color: var(--c-purple);
+        }
+
+        .nav a.active {
+            color: var(--c-purple);
+            background: var(--secondary);
+            border-left-color: var(--c-purple);
+            font-weight: 700;
+        }
+
+        .nav a .ni {
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Main */
+        .main {
+            overflow: hidden;
+        }
+
+        /* Hero */
+        .hero {
+            padding: 60px 56px 48px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, oklch(0.96 0.03 285) 0%, var(--background) 55%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: 'SQL';
+            position: absolute;
+            bottom: -24px;
+            right: 40px;
+            font-family: var(--display);
+            font-size: 140px;
+            font-weight: 800;
+            color: oklch(0.65 0.25 285 / 0.05);
+            pointer-events: none;
+            line-height: 1;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: oklch(0.65 0.25 285 / 0.1);
+            border: 1px solid oklch(0.65 0.25 285 / 0.25);
+            padding: 4px 14px;
+            border-radius: 999px;
+            font-size: 11px;
+            color: var(--c-purple);
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-family: var(--display);
+            font-size: 46px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 span {
+            color: var(--c-purple);
+        }
+
+        .hero p {
+            color: var(--muted-foreground);
+            font-size: 14px;
+            max-width: 520px;
+            line-height: 1.8;
+        }
+
+        /* Section */
+        .section {
+            padding: 52px 56px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: calc(var(--radius) - 2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-family: var(--display);
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .section-sub {
+            font-size: 10px;
+            color: var(--muted-foreground);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: oklch(0.65 0.25 285 / 0.4);
+            box-shadow: 0 4px 20px oklch(0.65 0.25 285 / 0.07);
+        }
+
+        .card-title {
+            font-family: var(--display);
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-body {
+            color: var(--muted-foreground);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* Table */
+        .tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .tbl th {
+            text-align: left;
+            padding: 9px 14px;
+            background: var(--muted);
+            color: var(--muted-foreground);
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tbl td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .tbl tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tbl tr:hover td {
+            background: var(--muted);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid;
+        }
+
+        .b-purple {
+            background: oklch(0.65 0.25 285 / 0.1);
+            color: var(--c-purple);
+            border-color: oklch(0.65 0.25 285 / 0.3);
+        }
+
+        .b-teal {
+            background: oklch(0.6 0.2 200 / 0.1);
+            color: oklch(0.4 0.18 200);
+            border-color: oklch(0.6 0.2 200 / 0.3);
+        }
+
+        .b-amber {
+            background: oklch(0.6 0.25 60 / 0.1);
+            color: oklch(0.4 0.2 55);
+            border-color: oklch(0.6 0.25 60 / 0.3);
+        }
+
+        .b-muted {
+            background: var(--muted);
+            color: var(--muted-foreground);
+            border-color: var(--border);
+        }
+
+        .b-red {
+            background: oklch(0.65 0.25 15 / 0.1);
+            color: oklch(0.5 0.22 15);
+            border-color: oklch(0.65 0.25 15 / 0.3);
+        }
+
+        /* Terminal code */
+        .code-wrap {
+            background: var(--terminal-bg);
+            border: 1px solid var(--terminal-border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .code-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 14px;
+            background: var(--terminal-muted);
+            border-bottom: 1px solid var(--terminal-border);
+        }
+
+        .code-lbl {
+            font-size: 9px;
+            color: oklch(0.5 0 0);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: 1px solid var(--terminal-border);
+            color: oklch(0.5 0 0);
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .copy-btn:hover,
+        .copy-btn.copied {
+            border-color: var(--c-purple);
+            color: oklch(0.78 0.2 285);
+        }
+
+        .code-body {
+            padding: 18px 20px;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--terminal-fg);
+            white-space: pre;
+        }
+
+        /* SQL colors */
+        .kw {
+            color: oklch(0.75 0.22 285);
+            font-weight: 700;
+        }
+
+        .str {
+            color: oklch(0.72 0.18 60);
+        }
+
+        .num {
+            color: oklch(0.7 0.18 145);
+        }
+
+        .op {
+            color: oklch(0.5 0 0);
+        }
+
+        /* Examples */
+        .example {
+            margin-bottom: 40px;
+        }
+
+        .example:last-child {
+            margin-bottom: 0;
+        }
+
+        .ex-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .ex-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--muted);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted-foreground);
+            flex-shrink: 0;
+        }
+
+        .ex-title {
+            font-family: var(--display);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .ex-body {
+            padding-left: 40px;
+        }
+
+        .output-block {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            margin-top: 10px;
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+
+        .out-lbl {
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            margin-bottom: 8px;
+        }
+
+        .out-row {
+            display: flex;
+            gap: 12px;
+            padding: 3px 0;
+        }
+
+        .out-id {
+            color: var(--c-purple);
+            font-weight: 700;
+            min-width: 24px;
+        }
+
+        .out-name {
+            color: oklch(0.4 0.2 55);
+        }
+
+        .out-extra {
+            color: var(--muted-foreground);
+            font-size: 11px;
+        }
+
+        .rtags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .rtag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--muted-foreground);
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Bit display */
+        .bit-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        .bit {
+            width: 36px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid;
+        }
+
+        .bit .bi {
+            font-size: 8px;
+            font-weight: 400;
+            opacity: 0.6;
+        }
+
+        .bit-on {
+            background: oklch(0.65 0.25 285 / 0.1);
+            border-color: oklch(0.65 0.25 285 / 0.4);
+            color: var(--c-purple);
+        }
+
+        .bit-off {
+            background: var(--muted);
+            border-color: var(--border);
+            color: var(--muted-foreground);
+        }
+
+        /* Rules grid */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .rule {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 15px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 13px;
+            color: var(--muted-foreground);
+            transition: border-color 0.15s;
+        }
+
+        .rule:hover {
+            border-color: oklch(0.65 0.25 285 / 0.35);
+        }
+
+        .rule.bad {
+            border-color: oklch(0.65 0.25 15 / 0.25);
+        }
+
+        .rule.bad:hover {
+            border-color: oklch(0.65 0.25 15 / 0.5);
+        }
+
+        .ri {
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Light chip */
+        .light-chip {
+            padding: 8px 14px;
+            background: oklch(0.6 0.25 60 / 0.08);
+            border: 1px solid oklch(0.6 0.25 60 / 0.2);
+            border-radius: var(--radius);
+            font-size: 12px;
+            color: oklch(0.4 0.2 55);
+        }
+
+        /* Highlight box */
+        .hi-box {
+            background: oklch(0.65 0.25 285 / 0.05);
+            border: 1px solid oklch(0.65 0.25 285 / 0.18);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            margin-bottom: 28px;
+            font-size: 13px;
+            color: var(--muted-foreground);
+            line-height: 1.8;
+        }
+
+        .hi-box strong {
+            color: var(--c-purple);
+            font-family: var(--display);
+            font-size: 14px;
+        }
+
+        /* Memory box */
+        .mem-box {
+            background: oklch(0.65 0.25 285 / 0.04);
+            border: 1px solid oklch(0.65 0.25 285 / 0.14);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+        }
+
+        .mem-title {
+            font-family: var(--display);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--c-purple);
+            margin-bottom: 14px;
+        }
+
+        /* Demo tier */
+        .demo-tier {
+            margin-bottom: 32px;
+        }
+
+        .tier-lbl {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 14px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            border: 1px solid;
+        }
+
+        .t-easy {
+            background: oklch(0.7 0.2 120 / 0.1);
+            color: oklch(0.35 0.18 140);
+            border-color: oklch(0.7 0.2 120 / 0.3);
+        }
+
+        .t-mid {
+            background: oklch(0.6 0.25 60 / 0.1);
+            color: oklch(0.4 0.2 55);
+            border-color: oklch(0.6 0.25 60 / 0.3);
+        }
+
+        .t-adv {
+            background: oklch(0.65 0.25 285 / 0.1);
+            color: var(--c-purple);
+            border-color: oklch(0.65 0.25 285 / 0.3);
+        }
+
+        .t-full {
+            background: oklch(0.65 0.25 15 / 0.1);
+            color: oklch(0.5 0.22 15);
+            border-color: oklch(0.65 0.25 15 / 0.3);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        .demo-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .demo-card:hover {
+            border-color: oklch(0.65 0.25 285 / 0.35);
+            box-shadow: 0 4px 16px oklch(0.65 0.25 285 / 0.07);
+        }
+
+        .demo-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 15px;
+            border-bottom: 1px solid var(--border);
+            background: var(--muted);
+        }
+
+        .demo-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--muted-foreground);
+            flex-shrink: 0;
+        }
+
+        .demo-ttl {
+            font-family: var(--display);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .demo-code {
+            background: var(--terminal-bg);
+            padding: 14px 16px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--terminal-fg);
+            line-height: 1.9;
+            position: relative;
+        }
+
+        .demo-copy {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: 1px solid var(--terminal-border);
+            color: oklch(0.5 0 0);
+            font-family: var(--mono);
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .demo-copy:hover,
+        .demo-copy.copied {
+            border-color: var(--c-purple);
+            color: oklch(0.78 0.2 285);
+        }
+
+        /* Inline code */
+        code {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            padding: 1px 6px;
+            border-radius: 5px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--c-purple);
+        }
+
+        .cheat-desc {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+        }
+
+        .full-wrap {
+            border-color: oklch(0.65 0.25 285 / 0.35) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 16px;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .sidebar-brand {
+                border-bottom: none;
+                padding: 0 16px 0 0;
+                border-right: 1px solid var(--border);
+            }
+
+            .nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                padding: 0;
+                gap: 4px;
+            }
+
+            .nav a {
+                padding: 6px 12px;
+                border-left: none;
+                border-radius: calc(var(--radius) - 4px);
+                font-size: 11px;
+            }
+
+            .nav a:hover,
+            .nav a.active {
+                border-left-color: transparent;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .hero,
+            .section {
+                padding: 32px 24px;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-tag">// docs</div>
+                <div class="brand-name">Query2Dance</div>
+                <div class="brand-sub">SQL Query Guide</div>
+            </div>
+            <nav class="nav">
+                <span class="nav-label">Guide</span>
+                <a href="#overview"><span class="ni">🎯</span>Overview</a>
+                <a href="#rules"><span class="ni">🟢</span>Rules</a>
+                <a href="#basics"><span class="ni">🧩</span>Basic Queries</a>
+                <a href="#lights"><span class="ni">💡</span>Light Control</a>
+                <a href="#union"><span class="ni">🔗</span>Using UNION</a>
+                <a href="#filtering"><span class="ni">🧠</span>Filtering</a>
+                <a href="#joins"><span class="ni">🚗</span>JOIN Examples</a>
+                <span class="nav-label">Reference</span>
+                <a href="#demos"><span class="ni">🧪</span>Demo Queries</a>
+                <a href="#mistakes"><span class="ni">❗</span>Common Mistakes</a>
+                <a href="#cheat"><span class="ni">📋</span>Cheat Sheet</a>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+
+            <!-- Hero -->
+            <section class="hero">
+                <div class="hero-pill"><span>●</span> Frontend Query Writing Guide</div>
+                <h1>Control dolls with<br /><span>SELECT queries</span></h1>
+                <p>Write SQL to control physical dolls (IDs 1–10), lights, and audio behavior in real time. Your query's
+                    output directly drives the system.</p>
+            </section>
+
+            <!-- Overview -->
+            <section class="section" id="overview">
+                <div class="section-header">
+                    <div class="section-icon">🎯</div>
+                    <div>
+                        <div class="section-sub">How it works</div>
+                        <div class="section-title">System Response</div>
+                    </div>
+                </div>
+                <div class="cards-grid">
+
+                    <!-- Dolls card -->
+                    <div class="card">
+                        <div class="card-title">🪆 Doll Movement</div>
+                        <div class="card-body" style="margin-bottom:16px;">Each returned <code>id</code> (1–10) maps to
+                            a physical doll position. IDs encode into a 10-bit string.</div>
+                        <div
+                            style="background:var(--background);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
+                            <table class="tbl">
+                                <thead>
+                                    <tr>
+                                        <th>id Returned</th>
+                                        <th>Doll</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1 – 10</td>
+                                        <td><span class="badge b-purple">MOVES</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Returned</td>
+                                        <td>bit = <span class="badge b-teal">1</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Not returned</td>
+                                        <td>bit = <span class="badge b-muted">0</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div
+                            style="font-size:11px;color:var(--muted-foreground);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
+                            Example — IDs 3, 5, 10 returned:</div>
+                        <div class="bit-row">
+                            <div class="bit bit-off"><span class="bi">1</span>0</div>
+                            <div class="bit bit-off"><span class="bi">2</span>0</div>
+                            <div class="bit bit-on"><span class="bi">3</span>1</div>
+                            <div class="bit bit-off"><span class="bi">4</span>0</div>
+                            <div class="bit bit-on"><span class="bi">5</span>1</div>
+                            <div class="bit bit-off"><span class="bi">6</span>0</div>
+                            <div class="bit bit-off"><span class="bi">7</span>0</div>
+                            <div class="bit bit-off"><span class="bi">8</span>0</div>
+                            <div class="bit bit-off"><span class="bi">9</span>0</div>
+                            <div class="bit bit-on"><span class="bi">10</span>1</div>
+                        </div>
+                        <div
+                            style="font-family:var(--mono);font-size:11px;color:var(--muted-foreground);margin-top:4px;">
+                            Bitstring: <span
+                                style="color:var(--c-purple);letter-spacing:2px;font-weight:700;">0010100001</span>
+                        </div>
+                    </div>
+
+                    <!-- Lights + Audio -->
+                    <div style="display:flex;flex-direction:column;gap:16px;">
+                        <div class="card">
+                            <div class="card-title">💡 Light Control</div>
+                            <div class="card-body" style="margin-bottom:12px;">Return a row where <code>name</code>
+                                matches a light name to toggle it on.</div>
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <div class="light-chip">name = <strong>'light 1'</strong> → Light 1 ON</div>
+                                <div class="light-chip">name = <strong>'light 2'</strong> → Light 2 ON</div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">🔊 Audio Logic</div>
+                            <div class="card-body" style="margin-bottom:12px;">Row count determines what audio plays.
+                            </div>
+                            <div
+                                style="background:var(--background);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+                                <table class="tbl">
+                                    <thead>
+                                        <tr>
+                                            <th>Result Count</th>
+                                            <th>Audio</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1 row</td>
+                                            <td><span class="badge b-purple">Specific audio</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>&gt; 1 rows</td>
+                                            <td><span class="badge b-teal">General music</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>0 rows</td>
+                                            <td><span class="badge b-muted">No sound</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rules -->
+            <section class="section" id="rules">
+                <div class="section-header">
+                    <div class="section-icon">🟢</div>
+                    <div>
+                        <div class="section-sub">Query Writing</div>
+                        <div class="section-title">Core Rules</div>
+                    </div>
+                </div>
+                <div class="rules-grid">
+                    <div class="rule"><span class="ri">✅</span>Use <code>SELECT</code> only — no writes allowed</div>
+                    <div class="rule"><span class="ri">✅</span>Must return <code>id</code> column to trigger dolls</div>
+                    <div class="rule"><span class="ri">✅</span>Must return <code>name</code> column for lights/audio
+                    </div>
+                    <div class="rule"><span class="ri">✅</span>Use <code>UNION</code> to combine multiple actions</div>
+                    <div class="rule"><span class="ri">✅</span>Multiple <code>SELECT</code>s → one combined result</div>
+                    <div class="rule"><span class="ri">✅</span>Spell light names exactly: <code>'light 1'</code>,
+                        <code>'light 2'</code></div>
+                </div>
+            </section>
+
+            <!-- Basic Queries -->
+            <section class="section" id="basics">
+                <div class="section-header">
+                    <div class="section-icon">🧩</div>
+                    <div>
+                        <div class="section-sub">Getting Started</div>
+                        <div class="section-title">Basic Queries</div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">01</div>
+                        <div class="ex-title">Show all humans</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT * FROM human;')"><svg width="11" height="11"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> * <span class="kw">FROM</span> human;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output</div>
+                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span></div>
+                            <div class="out-row"><span class="out-id">9</span><span class="out-name">saro</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span></div>
+                        </div>
+                        <div class="rtags"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-purple)"></span>Dolls 3, 5, 9, 10 move</span><span
+                                class="rtag"><span class="dot" style="background:var(--c-teal)"></span>General music
+                                plays</span></div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">02</div>
+                        <div class="ex-title">Move one doll (specific audio)</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 3;')"><svg width="11"
+                                        height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">3</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output (1 row)</div>
+                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                        </div>
+                        <div class="rtags"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-purple)"></span>Doll 3 moves</span><span
+                                class="rtag"><span class="dot" style="background:var(--c-pink)"></span>Priya's audio
+                                plays</span></div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">03</div>
+                        <div class="ex-title">Move multiple dolls</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>, <span class="num">10</span>);</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output (3 rows)</div>
+                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span></div>
+                        </div>
+                        <div class="rtags"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-purple)"></span>Dolls 3, 5, 10 move</span><span
+                                class="rtag"><span class="dot" style="background:var(--c-teal)"></span>General music
+                                plays</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Light Control -->
+            <section class="section" id="lights">
+                <div class="section-header">
+                    <div class="section-icon">💡</div>
+                    <div>
+                        <div class="section-sub">Illumination</div>
+                        <div class="section-title">Light Control</div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">04</div>
+                        <div class="ex-title">Turn ON Light 1</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT * FROM light WHERE name = 'light 1';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> * <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="rtags" style="margin-top:12px;"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-amber)"></span>Light 1 ON</span></div>
+                    </div>
+                </div>
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">05</div>
+                        <div class="ex-title">Turn ON Light 2</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT * FROM light WHERE name = 'light 2';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> * <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 2'</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="rtags" style="margin-top:12px;"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-amber)"></span>Light 2 ON</span></div>
+                    </div>
+                </div>
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">06</div>
+                        <div class="ex-title">Turn ON both lights</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM light;')"><svg width="11" height="11"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;</pre>
+                            </div>
+                        </div>
+                        <div class="rtags" style="margin-top:12px;"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-amber)"></span>Light 1 ON</span><span class="rtag"><span
+                                    class="dot" style="background:var(--c-amber)"></span>Light 2 ON</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- UNION -->
+            <section class="section" id="union">
+                <div class="section-header">
+                    <div class="section-icon">🔗</div>
+                    <div>
+                        <div class="section-sub">Most Important Concept</div>
+                        <div class="section-title">Using UNION</div>
+                    </div>
+                </div>
+                <div class="hi-box"><strong>UNION</strong> merges the results of multiple SELECT statements into one
+                    combined result set. Use it to trigger dolls <em>and</em> lights in the same query.</div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">07</div>
+                        <div class="ex-title">Move dolls + turn light ON</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (3, 5)\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>)
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output (3 rows)</div>
+                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span></div>
+                            <div class="out-row"><span class="out-id">11</span><span class="out-name">light 1</span>
+                            </div>
+                        </div>
+                        <div class="rtags"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-purple)"></span>Dolls 3 &amp; 5 move</span><span
+                                class="rtag"><span class="dot" style="background:var(--c-amber)"></span>Light 1
+                                ON</span><span class="rtag"><span class="dot"
+                                    style="background:var(--c-teal)"></span>Music plays</span></div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">08</div>
+                        <div class="ex-title">Single doll + light (music via &gt;1 rows)</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id = 3\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">3</span>
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output (2 rows)</div>
+                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">11</span><span class="out-name">light 1</span>
+                            </div>
+                        </div>
+                        <div class="rtags"><span class="rtag"><span class="dot"
+                                    style="background:var(--c-purple)"></span>Doll 3 moves</span><span
+                                class="rtag"><span class="dot" style="background:var(--c-amber)"></span>Light 1
+                                ON</span><span class="rtag"><span class="dot"
+                                    style="background:var(--c-teal)"></span>Music plays (2 rows)</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filtering -->
+            <section class="section" id="filtering">
+                <div class="section-header">
+                    <div class="section-icon">🧠</div>
+                    <div>
+                        <div class="section-sub">WHERE Clauses</div>
+                        <div class="section-title">Filtering Examples</div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">09</div>
+                        <div class="ex-title">Humans older than 21</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE age > 21;')"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> age <span class="op">&gt;</span> <span class="num">21</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output</div>
+                            <div class="out-row"><span class="out-id">9</span><span class="out-name">saro</span><span
+                                    class="out-extra" style="margin-left:8px;">(age 23)</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span><span
+                                    class="out-extra" style="margin-left:8px;">(age 22)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">10</div>
+                        <div class="ex-title">Animals that are white</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT id, name FROM animal WHERE color = 'white';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> animal <span class="kw">WHERE</span> color = <span class="str">'white'</span>;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output</div>
+                            <div class="out-row"><span class="out-id">8</span><span class="out-name">cow</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- JOIN -->
+            <section class="section" id="joins">
+                <div class="section-header">
+                    <div class="section-icon">🚗</div>
+                    <div>
+                        <div class="section-sub">Advanced</div>
+                        <div class="section-title">JOIN Example</div>
+                    </div>
+                </div>
+                <div class="example">
+                    <div class="ex-head">
+                        <div class="ex-num">11</div>
+                        <div class="ex-title">Human + their vehicle</div>
+                    </div>
+                    <div class="ex-body">
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT h.id, h.name, v.name AS vehicle\nFROM human h\nJOIN vehicle v ON h.vehicle_id = v.id;')"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> h.id, h.name, v.name <span class="kw">AS</span> vehicle
+<span class="kw">FROM</span> human h
+<span class="kw">JOIN</span> vehicle v <span class="kw">ON</span> h.vehicle_id = v.id;</pre>
+                            </div>
+                        </div>
+                        <div class="output-block">
+                            <div class="out-lbl">Output — shows ownership data</div>
+                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span><span
+                                    class="out-extra" style="margin-left:8px;">→ bike</span></div>
+                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span><span
+                                    class="out-extra" style="margin-left:8px;">→ car</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span><span
+                                    class="out-extra" style="margin-left:8px;">→ bus</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Demo Queries -->
+            <section class="section" id="demos">
+                <div class="section-header">
+                    <div class="section-icon">🧪</div>
+                    <div>
+                        <div class="section-sub">Ready to Run</div>
+                        <div class="section-title">Demo Queries for Presentation</div>
+                    </div>
+                </div>
+
+                <div class="demo-tier">
+                    <div class="tier-lbl t-easy">🟢 Easy</div>
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">1</div>
+                                <div class="demo-ttl">Move one doll</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 3;')">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
+                                    class="kw">WHERE</span> id = <span class="num">3</span>;</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">2</div>
+                                <div class="demo-ttl">Move two dolls</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5);')">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
+                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
+                                <span class="num">5</span>);</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">3</div>
+                                <div class="demo-ttl">Turn Light 1 ON</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,`SELECT * FROM light WHERE name = 'light 1';`)">Copy</button><span
+                                    class="kw">SELECT</span> * <span class="kw">FROM</span> light <span
+                                    class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-tier">
+                    <div class="tier-lbl t-mid">🟡 Intermediate</div>
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">4</div>
+                                <div class="demo-ttl">Dolls dance + music</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> human<br /><span
+                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
+                                <span class="num">5</span>, <span class="num">10</span>);</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">5</div>
+                                <div class="demo-ttl">Doll + light</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id = 3\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
+                                    class="kw">WHERE</span> id = <span class="num">3</span><br /><span
+                                    class="kw">UNION</span><br /><span class="kw">SELECT</span> id, name <span
+                                    class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span
+                                    class="str">'light 1'</span>;</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">6</div>
+                                <div class="demo-ttl">Both lights ON</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,'SELECT id, name FROM light;')">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-tier">
+                    <div class="tier-lbl t-adv">🔵 Advanced</div>
+                    <div class="demo-grid">
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">7</div>
+                                <div class="demo-ttl">Dolls + both lights</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (3, 5)\nUNION\nSELECT id, name FROM light;`)">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
+                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
+                                <span class="num">5</span>)<br /><span class="kw">UNION</span><br /><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">8</div>
+                                <div class="demo-ttl">White animals only</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,`SELECT id, name FROM animal WHERE color = 'white';`)">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> animal <span
+                                    class="kw">WHERE</span> color = <span class="str">'white'</span>;</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-head">
+                                <div class="demo-num">9</div>
+                                <div class="demo-ttl">Humans older than 21</div>
+                            </div>
+                            <div class="demo-code"><button class="demo-copy"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE age > 21;')">Copy</button><span
+                                    class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
+                                    class="kw">WHERE</span> age <span class="op">&gt;</span> <span
+                                    class="num">21</span>;</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-tier" style="margin-bottom:0;">
+                    <div class="tier-lbl t-full">🔴 Full Show — Best for Presentation</div>
+                    <div class="code-wrap full-wrap">
+                        <div class="code-head"><span class="code-lbl" style="color:oklch(0.75 0.22 285);">SQL — triggers
+                                everything</span><button class="copy-btn"
+                                onclick="copyCode(this,'SELECT id, name FROM human\nUNION\nSELECT id, name FROM light;')"><svg
+                                    width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                </svg> Copy</button></div>
+                        <div class="code-body">
+                            <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;</pre>
+                        </div>
+                    </div>
+                    <div class="rtags" style="margin-top:14px;"><span class="rtag"><span class="dot"
+                                style="background:var(--c-purple)"></span>All dolls move</span><span class="rtag"><span
+                                class="dot" style="background:var(--c-amber)"></span>Both lights ON</span><span
+                            class="rtag"><span class="dot" style="background:var(--c-teal)"></span>Music plays</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Common Mistakes -->
+            <section class="section" id="mistakes">
+                <div class="section-header">
+                    <div class="section-icon">❗</div>
+                    <div>
+                        <div class="section-sub">Troubleshooting</div>
+                        <div class="section-title">Common Mistakes</div>
+                    </div>
+                </div>
+                <div class="rules-grid" style="margin-bottom:28px;">
+                    <div class="rule bad"><span class="ri">❌</span>Missing <code>id</code> column — dolls won't move
+                    </div>
+                    <div class="rule bad"><span class="ri">❌</span>Using <code>INSERT</code>, <code>UPDATE</code>, or
+                        <code>DELETE</code></div>
+                    <div class="rule bad"><span class="ri">❌</span>Wrong light name — must be exactly
+                        <code>'light 1'</code></div>
+                    <div class="rule bad"><span class="ri">❌</span>Multiple separate queries — use <code>UNION</code>
+                        instead</div>
+                </div>
+                <div class="mem-box">
+                    <div class="mem-title">🧠 Quick Memory</div>
+                    <div class="rules-grid">
+                        <div class="rule" style="border-color:oklch(0.65 0.25 285 / 0.15)"><span class="ri">✅</span>1
+                            row → specific audio for that person</div>
+                        <div class="rule" style="border-color:oklch(0.65 0.25 285 / 0.15)"><span class="ri">✅</span>Many
+                            rows → general music plays</div>
+                        <div class="rule" style="border-color:oklch(0.65 0.25 285 / 0.15)"><span
+                                class="ri">✅</span>Return <code>id</code> → dolls activate</div>
+                        <div class="rule" style="border-color:oklch(0.65 0.25 285 / 0.15)"><span
+                                class="ri">✅</span>Return light <code>name</code> → lights activate</div>
+                        <div class="rule" style="border-color:oklch(0.65 0.25 285 / 0.15);grid-column:1/-1"><span
+                                class="ri">✅</span><code>UNION</code> = combine multiple actions in one query</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cheat Sheet -->
+            <section class="section" id="cheat" style="border-bottom:none;">
+                <div class="section-header">
+                    <div class="section-icon">📋</div>
+                    <div>
+                        <div class="section-sub">Reference</div>
+                        <div class="section-title">Quick Cheat Sheet</div>
+                    </div>
+                </div>
+
+                <div class="cards-grid" style="margin-bottom:32px;">
+                    <div class="card">
+                        <div class="card-title" style="margin-bottom:12px;">What your query controls</div>
+                        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;">
+                            <div
+                                style="padding:8px 12px;background:oklch(0.65 0.25 285 / 0.07);border:1px solid oklch(0.65 0.25 285 / 0.18);border-radius:calc(var(--radius) - 4px);">
+                                <span style="color:var(--c-purple);font-weight:700;">Dolls</span> <span
+                                    style="color:var(--muted-foreground)">→ returned</span> <code>id</code> <span
+                                    style="color:var(--muted-foreground)">(1–10)</span></div>
+                            <div
+                                style="padding:8px 12px;background:oklch(0.6 0.25 60 / 0.07);border:1px solid oklch(0.6 0.25 60 / 0.2);border-radius:calc(var(--radius) - 4px);">
+                                <span style="color:oklch(0.4 0.2 55);font-weight:700;">Lights</span> <span
+                                    style="color:var(--muted-foreground)">→ <code>name</code> = <code>'light 1'</code>
+                                    or <code>'light 2'</code></span></div>
+                            <div
+                                style="padding:8px 12px;background:oklch(0.6 0.2 200 / 0.07);border:1px solid oklch(0.6 0.2 200 / 0.2);border-radius:calc(var(--radius) - 4px);">
+                                <span style="color:oklch(0.4 0.18 200);font-weight:700;">Audio</span> <span
+                                    style="color:var(--muted-foreground)">→ 1 row = specific, &gt;1 = music, 0 =
+                                    silence</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title" style="margin-bottom:12px;">Pattern reference</div>
+                        <div
+                            style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted-foreground);">
+                            <div>Move one doll: <code style="font-size:11px;">WHERE id = N</code></div>
+                            <div>Move many dolls: <code style="font-size:11px;">WHERE id IN (N, N)</code></div>
+                            <div>Filter by column: <code style="font-size:11px;">WHERE col = 'value'</code></div>
+                            <div>Combine actions: <code style="font-size:11px;">SELECT … UNION SELECT …</code></div>
+                            <div>Trigger all: <code style="font-size:11px;">FROM human UNION FROM light</code></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:18px;">
+                    <div>
+                        <div class="cheat-desc">Move one doll</div>
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 3;')"><svg width="11"
+                                        height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">3</span>;</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="cheat-desc">Move multiple dolls</div>
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>, <span class="num">10</span>);</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="cheat-desc">Turn ON a light</div>
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT * FROM light WHERE name = 'light 1';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> * <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="cheat-desc">Dolls + light</div>
+                        <div class="code-wrap">
+                            <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (3, 5)\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>)
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="cheat-desc">Trigger everything</div>
+                        <div class="code-wrap full-wrap">
+                            <div class="code-head"><span class="code-lbl" style="color:oklch(0.75 0.22 285);">🔴 Full
+                                    Show</span><button class="copy-btn"
+                                    onclick="copyCode(this,'SELECT id, name FROM human\nUNION\nSELECT id, name FROM light;')"><svg
+                                        width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg> Copy</button></div>
+                            <div class="code-body">
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function copyCode(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = btn.innerHTML;
+                btn.classList.add('copied');
+                btn.innerHTML = btn.classList.contains('demo-copy')
+                    ? 'Copied!'
+                    : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+                setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 1800);
+            });
+        }
+
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav a');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting)
+                    navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+        sections.forEach(s => observer.observe(s));
+    </script>
+</body>
+
+</html>

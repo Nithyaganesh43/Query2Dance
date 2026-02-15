@@ -50,47 +50,7 @@
             --terminal-border: oklch(0.25 0 0);
             --terminal-muted: oklch(0.15 0 0);
         }
-
-        .dark {
-            --background: oklch(0.08 0 0);
-            --foreground: oklch(0.98 0 0);
-            --card: oklch(0.12 0 0);
-            --card-foreground: oklch(0.98 0 0);
-            --popover: oklch(0.12 0 0);
-            --popover-foreground: oklch(0.98 0 0);
-            --primary: oklch(0.65 0.25 285);
-            --primary-foreground: oklch(0.98 0 0);
-            --secondary: oklch(0.18 0 0);
-            --secondary-foreground: oklch(0.98 0 0);
-            --muted: oklch(0.15 0 0);
-            --muted-foreground: oklch(0.65 0 0);
-            --accent: oklch(0.65 0.25 285);
-            --accent-foreground: oklch(0.98 0 0);
-            --destructive: oklch(0.65 0.25 15);
-            --destructive-foreground: oklch(0.98 0 0);
-            --border: oklch(0.25 0 0);
-            --input: oklch(0.18 0 0);
-            --ring: oklch(0.65 0.25 285);
-            --chart-1: oklch(0.65 0.25 285);
-            --chart-2: oklch(0.6 0.2 200);
-            --chart-3: oklch(0.7 0.2 120);
-            --chart-4: oklch(0.6 0.25 60);
-            --chart-5: oklch(0.65 0.2 320);
-            --sidebar: oklch(0.12 0 0);
-            --sidebar-foreground: oklch(0.98 0 0);
-            --sidebar-primary: oklch(0.65 0.25 285);
-            --sidebar-primary-foreground: oklch(0.98 0 0);
-            --sidebar-accent: oklch(0.18 0 0);
-            --sidebar-accent-foreground: oklch(0.98 0 0);
-            --sidebar-border: oklch(0.25 0 0);
-            --sidebar-ring: oklch(0.65 0.25 285);
-
-            --terminal-bg: oklch(0.08 0 0);
-            --terminal-fg: oklch(0.85 0 0);
-            --terminal-border: oklch(0.25 0 0);
-            --terminal-muted: oklch(0.15 0 0);
-        }
-
+ 
         body {
             background-color: var(--background);
             color: var(--foreground);
@@ -806,7 +766,7 @@ SELECT * FROM animal WHERE color = 'white';"></textarea>
                 currentAudio.currentTime = 0;
             }
 
-            const REFRESH_DELAY_MS = 30000; // 30 seconds before refresh
+            const REFRESH_DELAY_MS = 15000; // 30 seconds before refresh
             const generalAudioPath = "audio/general.mp3";
 
             // Set timeout to refresh page after 30 seconds
@@ -819,16 +779,16 @@ SELECT * FROM animal WHERE color = 'white';"></textarea>
                     // SINGLE AUDIO: Play specific audio 2 times, then play general audio
                     const audioName = (data[0].name || data[0]).toLowerCase().replace(/\s+/g, "");
                     const filePath = `audio/${audioName}.mp3`;
-                    
+
                     // Play single audio twice
                     await playSingleAudioTwice(filePath);
-                    
+
                     // Then play general audio
                     const generalAudio = new Audio(generalAudioPath);
                     currentAudio = generalAudio;
                     generalAudio.loop = true;
                     await generalAudio.play();
-                    
+
                 } else {
                     // GENERAL AUDIO: Play general audio once (looped)
                     const generalAudio = new Audio(generalAudioPath);
@@ -855,11 +815,11 @@ SELECT * FROM animal WHERE color = 'white';"></textarea>
         async function playSingleAudioTwice(filePath) {
             return new Promise((resolve, reject) => {
                 let playCount = 0;
-                
+
                 function playAudioOnce() {
                     const audio = new Audio(filePath);
                     currentAudio = audio;
-                    
+
                     audio.addEventListener('ended', () => {
                         playCount++;
                         if (playCount < 2) {
@@ -870,15 +830,15 @@ SELECT * FROM animal WHERE color = 'white';"></textarea>
                             resolve();
                         }
                     });
-                    
+
                     audio.addEventListener('error', (e) => {
                         console.error("Error playing single audio:", e);
                         reject(e);
                     });
-                    
+
                     audio.play().catch(reject);
                 }
-                
+
                 playAudioOnce();
             });
         }

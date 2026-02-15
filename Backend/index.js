@@ -12,7 +12,7 @@ app.set('trust proxy',true);
 // ================= CONFIG =================
 const PORT=process.env.PORT||3000;
 const API_KEY='MY_SECRET_KEY';
-const DB_PATH='Backend/toys.db';
+const DB_PATH='./toys.db';
 
 // ================= DATABASE =================
 const db=new sqlite3.Database(DB_PATH);

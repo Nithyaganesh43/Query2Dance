@@ -9,67 +9,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.9.2/confetti.browser.min.js"></script>
     <style>
         :root {
-            /* Updated to light theme with purple accents, keeping terminal dark */
             --background: oklch(0.98 0 0);
             --foreground: oklch(0.15 0 0);
             --card: oklch(0.96 0 0);
             --card-foreground: oklch(0.15 0 0);
-            --popover: oklch(0.96 0 0);
-            --popover-foreground: oklch(0.15 0 0);
             --primary: oklch(0.65 0.25 285);
             --primary-foreground: oklch(0.98 0 0);
             --secondary: oklch(0.92 0 0);
-            --secondary-foreground: oklch(0.15 0 0);
             --muted: oklch(0.94 0 0);
             --muted-foreground: oklch(0.45 0 0);
-            --accent: oklch(0.65 0.25 285);
-            --accent-foreground: oklch(0.98 0 0);
             --destructive: oklch(0.65 0.25 15);
-            --destructive-foreground: oklch(0.98 0 0);
             --border: oklch(0.88 0 0);
-            --input: oklch(0.94 0 0);
             --ring: oklch(0.65 0.25 285);
-            --chart-1: oklch(0.65 0.25 285);
-            --chart-2: oklch(0.6 0.2 200);
-            --chart-3: oklch(0.7 0.2 120);
-            --chart-4: oklch(0.6 0.25 60);
-            --chart-5: oklch(0.65 0.2 320);
             --radius: 0.75rem;
-            --sidebar: oklch(0.96 0 0);
-            --sidebar-foreground: oklch(0.15 0 0);
-            --sidebar-primary: oklch(0.65 0.25 285);
-            --sidebar-primary-foreground: oklch(0.98 0 0);
-            --sidebar-accent: oklch(0.92 0 0);
-            --sidebar-accent-foreground: oklch(0.15 0 0);
-            --sidebar-border: oklch(0.88 0 0);
-            --sidebar-ring: oklch(0.65 0.25 285);
-
-            /* Added terminal-specific colors for dark command line */
             --terminal-bg: oklch(0.08 0 0);
             --terminal-fg: oklch(0.85 0 0);
             --terminal-border: oklch(0.25 0 0);
             --terminal-muted: oklch(0.15 0 0);
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             background-color: var(--background);
             color: var(--foreground);
+            /* FIX: Allow scroll on mobile, only hide overflow on large screens */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
-        /* Updated grid pattern for light theme */
+        /* FIX: Only lock to screen height on large screens */
+        @media (min-width: 1024px) {
+            body {
+                overflow: hidden;
+                height: 100vh;
+            }
+        }
+
         .grid-pattern {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
             background-size: 20px 20px;
         }
 
-        /* Card styles */
         .card {
-            background-color: var(--card);
+            background-color: color-mix(in srgb, var(--card) 80%, transparent);
             border: 1px solid var(--border);
             border-radius: var(--radius);
             backdrop-filter: blur(4px);
-            background-color: color-mix(in srgb, var(--card) 80%, transparent);
         }
 
         .card-header {
@@ -93,7 +90,6 @@
             font-size: 0.875rem;
         }
 
-        /* Badge styles */
         .badge {
             display: inline-flex;
             align-items: center;
@@ -102,7 +98,6 @@
             padding: 0.125rem 0.625rem;
             font-size: 0.75rem;
             font-weight: 600;
-            transition: colors 0.2s;
         }
 
         .badge-secondary {
@@ -111,7 +106,6 @@
             border-color: color-mix(in srgb, var(--primary) 30%, transparent);
         }
 
-        /* Button styles */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -124,6 +118,7 @@
             transition: all 0.2s;
             cursor: pointer;
             border: none;
+            min-height: 44px;
         }
 
         .btn-primary {
@@ -140,12 +135,14 @@
             cursor: not-allowed;
         }
 
-        /* Terminal styles */
+        /* Terminal */
         .terminal {
             border-radius: 0.5rem;
             border: 1px solid var(--terminal-border);
             overflow: hidden;
             background-color: var(--terminal-bg);
+            display: flex;
+            flex-direction: column;
         }
 
         .terminal-header {
@@ -155,6 +152,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-shrink: 0;
         }
 
         .terminal-prompt {
@@ -164,10 +162,6 @@
             font-family: monospace;
             font-size: 0.875rem;
             color: var(--terminal-fg);
-        }
-
-        .terminal-cursor {
-            animation: blink 1s infinite;
         }
 
         @keyframes blink {
@@ -183,26 +177,33 @@
             }
         }
 
-        /* Textarea styles */
+        .terminal-cursor {
+            animation: blink 1s infinite;
+        }
+
+        /* FIX: Textarea must have an explicit min-height so it's always visible */
         .textarea {
             width: 100%;
-            height: 8rem;
             border: none;
             background-color: transparent;
             color: var(--terminal-fg);
             font-family: monospace;
-            font-size: 1.25rem;
+            font-size: 1rem;
             line-height: 1.6;
             padding: 1rem;
             resize: none;
             outline: none;
+            /* FIX: Explicit minimum height so textarea never collapses */
+            min-height: 160px;
+            /* On large screens, flex-1 will override this to fill space */
+            flex: 1 1 auto;
         }
 
         .textarea::placeholder {
-            color: color-mix(in srgb, var(--terminal-fg) 60%, transparent);
+            color: color-mix(in srgb, var(--terminal-fg) 50%, transparent);
         }
 
-        /* Table styles */
+        /* Table */
         .table-container {
             position: relative;
             width: 100%;
@@ -211,7 +212,6 @@
 
         .table {
             width: 100%;
-            caption-side: bottom;
             font-size: 0.875rem;
             border-collapse: collapse;
         }
@@ -226,7 +226,7 @@
 
         .table tr {
             border-bottom: 1px solid var(--border);
-            transition: colors 0.2s;
+            transition: background-color 0.2s;
         }
 
         .table tr:hover {
@@ -247,7 +247,6 @@
             vertical-align: middle;
         }
 
-        /* Alert styles */
         .alert {
             position: relative;
             width: 100%;
@@ -270,67 +269,23 @@
             font-size: 0.875rem;
         }
 
-        /* Enhanced SQL syntax highlighting with specific colors for different keywords */
-        .sql-select {
-            color: oklch(0.7 0.3 320);
-            /* Magenta for SELECT */
-            font-weight: 700;
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
         }
 
-        .sql-from {
-            color: oklch(0.6 0.2 120);
-            /* Green for FROM */
-            font-weight: 600;
-        }
-
-        .sql-join {
-            color: oklch(0.65 0.25 60);
-            /* Orange for JOIN keywords */
-            font-weight: 600;
-        }
-
-        .sql-keyword {
-            color: oklch(0.65 0.25 285);
-            /* Purple for other keywords */
-            font-weight: 600;
-        }
-
-        .sql-string {
-            color: oklch(0.6 0.2 120);
-            /* Green for strings */
-        }
-
-        .sql-number {
-            color: oklch(0.6 0.25 60);
-            /* Orange for numbers */
-        }
-
-        .sql-operator {
-            color: oklch(0.7 0.15 200);
-            /* Blue for operators */
-        }
-
-        /* Success pulse animation */
-        .success-pulse {
-            animation: pulse-success 0.6s ease-out;
-        }
-
-        @keyframes pulse-success {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.02);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        /* Loading spinner */
-        .spinner {
+        .loading-spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid var(--primary);
+            border-top-color: transparent;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
@@ -344,7 +299,59 @@
             }
         }
 
-        /* Utility classes */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        /* SQL highlighting */
+        .sql-select {
+            color: oklch(0.7 0.3 320);
+            font-weight: 700;
+        }
+
+        .sql-from {
+            color: oklch(0.6 0.2 120);
+            font-weight: 600;
+        }
+
+        .sql-join {
+            color: oklch(0.65 0.25 60);
+            font-weight: 600;
+        }
+
+        .sql-keyword {
+            color: oklch(0.65 0.25 285);
+            font-weight: 600;
+        }
+
+        .sql-string {
+            color: oklch(0.6 0.2 120);
+        }
+
+        .sql-number {
+            color: oklch(0.6 0.25 60);
+        }
+
+        .sql-operator {
+            color: oklch(0.7 0.15 200);
+        }
+
+        @keyframes pulse-success {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        .success-pulse {
+            animation: pulse-success 0.6s ease-out;
+        }
+
         .primary-color {
             color: var(--primary);
         }
@@ -354,550 +361,501 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
-        .flex {
-            display: flex;
+        /* ── Layout: mobile-first ── */
+
+        /* FIX: wrapper layout for large screens */
+        @media (min-width: 1024px) {
+            .app-wrapper {
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .main-grid {
+                flex: 1;
+                min-height: 0;
+                display: grid;
+                grid-template-columns: 3fr 2fr;
+                gap: 1rem;
+            }
+
+            .left-col,
+            .right-col {
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .left-col .card,
+            .right-col .card {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .left-col .card-content,
+            .right-col .card-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                overflow: auto;
+            }
+
+            /* Terminal fills remaining space on desktop */
+            .left-col .terminal {
+                flex: 1;
+                min-height: 0;
+            }
+
+            .left-col .textarea {
+                min-height: 0;
+                /* let flex-1 do the work on desktop */
+            }
         }
 
-        .items-center {
-            align-items: center;
+        /* Mobile: stack everything, no overflow:hidden */
+        @media (max-width: 1023px) {
+            .main-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
 
-        .justify-between {
-            justify-content: space-between;
+        @media (max-width: 767px) {
+            .table {
+                font-size: 0.875rem;
+                min-width: 500px;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.625rem 0.75rem;
+            }
         }
 
-        .justify-end {
-            justify-content: flex-end;
-        }
+        @media (max-width: 480px) {
+            .table {
+                font-size: 0.75rem;
+                min-width: 480px;
+            }
 
-        .gap-2 {
-            gap: 0.5rem;
-        }
+            .table th,
+            .table td {
+                padding: 0.5rem 0.625rem;
+                white-space: nowrap;
+            }
 
-        .gap-4 {
-            gap: 1rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-sm {
-            font-size: 0.875rem;
-        }
-
-        .text-lg {
-            font-size: 1.125rem;
-        }
-
-        .text-2xl {
-            font-size: 1.5rem;
-        }
-
-        .text-3xl {
-            font-size: 1.875rem;
-        }
-
-        .font-bold {
-            font-weight: 700;
-        }
-
-        .font-semibold {
-            font-weight: 600;
-        }
-
-        .font-medium {
-            font-weight: 500;
-        }
-
-        .py-2 {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-
-        .py-4 {
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-
-        .py-8 {
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-
-        .px-6 {
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
-        }
-
-        .w-4 {
-            width: 1rem;
-        }
-
-        .w-5 {
-            width: 1.25rem;
-        }
-
-        .w-6 {
-            width: 1.5rem;
-        }
-
-        .w-12 {
-            width: 3rem;
-        }
-
-        .w-16 {
-            width: 4rem;
-        }
-
-        .h-4 {
-            height: 1rem;
-        }
-
-        .h-5 {
-            height: 1.25rem;
-        }
-
-        .h-6 {
-            height: 1.5rem;
-        }
-
-        .h-12 {
-            height: 3rem;
-        }
-
-        .rounded-full {
-            border-radius: 9999px;
-        }
-
-        .border-2 {
-            border-width: 2px;
+            .badge {
+                font-size: 0.625rem;
+                padding: 0.125rem 0.5rem;
+            }
         }
     </style>
 </head>
 
-<body class="h-screen grid-pattern flex flex-col overflow-hidden">
-    <header class="border-b backdrop-blur-sm flex-shrink-0"
-        style="border-color: color-mix(in srgb, var(--border) 50%, transparent); background-color: color-mix(in srgb, var(--card) 80%, transparent);">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full border-2 flex items-center justify-center"
-                        style="background-color: color-mix(in srgb, var(--primary) 20%, transparent); border-color: var(--primary);">
-                        <svg class="w-6 h-6 primary-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 3l14 9-14 9V3z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold">Query2Dance</h1>
-                        <p class="text-base font-semibold primary-color">Department of Computer Science and Engineering
-                        </p>
-                    </div>
-                </div>
-                <a href="Query2Dance_Guide.html" class="btn btn-primary">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    Query Guide
-                </a>
-            </div>
-        </div>
-    </header>
+<body class="grid-pattern">
+    <div class="app-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
 
-    <main class="flex-1 container mx-auto px-6 py-4 overflow-hidden">
-        <div class="h-full flex gap-4">
-            <div style="width: 60%; min-width: 0;">
-                <div class="card h-full flex flex-col">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <svg class="w-5 h-5 primary-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <ellipse cx="12" cy="5" rx="9" ry="3" />
-                                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+        <div id="loadingOverlay" class="loading-overlay hidden" role="status" aria-live="polite">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="border-b backdrop-blur-sm flex-shrink-0" style="border-color: color-mix(in srgb, var(--border) 50%, transparent);
+                   background-color: color-mix(in srgb, var(--card) 80%, transparent);">
+            <div class="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                            style="background-color: color-mix(in srgb, var(--primary) 20%, transparent); border-color: var(--primary);">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6 primary-color" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 3l14 9-14 9V3z" />
                             </svg>
-                            MySQL Query Console
                         </div>
-                        <div class="card-description">Enter your SQL queries and watch the magic happen</div>
-                    </div>
-                    <div class="card-content flex-1 flex flex-col">
-                        <div class="terminal flex-1">
-                            <div class="terminal-header">
-                                <div class="terminal-prompt">
-                                    <span class="font-semibold primary-color">mysql&gt;</span>
-                                    <span class="terminal-cursor">_</span>
-                                </div>
-                                <div class="text-sm" style="color: var(--terminal-fg);">https://query2dance.onrender.com</div>
-                            </div>
-                            <textarea id="queryInput" class="textarea"
-                                style="height: calc(100% - 3rem); min-height: 300px;" placeholder="SELECT * FROM human WHERE age > 20;
-SELECT * FROM vehical;
-SELECT * FROM animal WHERE color = 'white';"></textarea>
-                        </div>
-
-                        <div class="flex items-center gap-4" style="margin-top: 0.75rem; flex-shrink: 0;">
-                            <button id="executeBtn" class="btn btn-primary">
-                                <svg id="playIcon" class="w-4 h-4" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <polygon points="5,3 19,12 5,21 5,3" />
-                                </svg>
-                                <svg id="spinnerIcon" class="w-4 h-4 spinner hidden" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                <span id="btnText">Execute Query</span>
-                            </button>
-                            <span class="text-sm muted-foreground">Press Enter to execute</span>
+                        <div class="min-w-0">
+                            <h1 class="text-lg sm:text-xl lg:text-2xl font-bold truncate">Query2Dance</h1>
+                            <p class="text-xs sm:text-sm lg:text-base font-semibold primary-color truncate">
+                                Department of Computer Science and Engineering
+                            </p>
                         </div>
                     </div>
+                    <a href="Query2Dance_Guide.html" class="btn btn-primary w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Query Guide
+                    </a>
                 </div>
             </div>
+        </header>
 
-            <div style="width: 40%; min-width: 0;">
-                <div class="card h-full flex flex-col">
-                    <div class="card-header flex-shrink-0">
-                        <div class="flex items-center justify-between">
+        <!-- Main -->
+        <main class="flex-1 container mx-auto px-4 sm:px-6 py-3 sm:py-4" style="min-height: 0;">
+            <div class="main-grid h-full">
+
+                <!-- Left: Query Console -->
+                <div class="left-col">
+                    <div class="card h-full" style="display:flex; flex-direction:column;">
+                        <div class="card-header" style="flex-shrink:0;">
                             <div class="card-title">
-                                <svg class="w-4 h-4 primary-color" fill="none" stroke="currentColor"
+                                <svg class="w-5 h-5 primary-color flex-shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
-                                    <path d="M9 18V5l12-2v13" />
-                                    <circle cx="6" cy="18" r="3" />
-                                    <circle cx="18" cy="16" r="3" />
+                                    <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
                                 </svg>
-                                Query Results
+                                <span class="truncate">MySQL Query Console</span>
                             </div>
-                            <div id="resultBadge" class="badge badge-secondary hidden">
-                                <span id="resultCount">0</span> result<span id="resultPlural">s</span>
-                            </div>
-                        </div>
-                        <div class="card-description">Results will appear here with dancing animations</div>
-                    </div>
-                    <div class="card-content flex-1 overflow-auto">
-                        <div id="errorAlert" class="alert alert-destructive hidden">
-                            <div class="alert-content">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="12" y1="8" x2="12" y2="12" />
-                                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                                </svg>
-                                <span id="errorMessage"></span>
-                            </div>
+                            <div class="card-description">Enter your SQL queries and watch the magic happen</div>
                         </div>
 
-                        <div id="resultsContainer" class="hidden">
-                            <div class="table-container success-pulse">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="resultsTableBody">
-                                    </tbody>
-                                </table>
+                        <div class="card-content" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+                            <!-- Terminal box -->
+                            <div class="terminal" style="flex:1; min-height:0; display:flex; flex-direction:column;">
+                                <div class="terminal-header">
+                                    <div class="terminal-prompt">
+                                        <span class="font-semibold primary-color">mysql&gt;</span>
+                                        <span class="terminal-cursor">_</span>
+                                    </div>
+                                    <div class="text-xs sm:text-sm truncate" style="color: var(--terminal-fg);">
+                                        https://query2dance.onrender.com
+                                    </div>
+                                </div>
+                                <textarea id="queryInput" class="textarea"
+                                    placeholder="SELECT * FROM human WHERE age > 20;&#10;SELECT * FROM vehical;&#10;SELECT * FROM animal WHERE color = 'white';"
+                                    aria-label="SQL Query Input"></textarea>
                             </div>
-                        </div>
 
-
-                        <div id="emptyState" class="text-center py-8">
-                            <div class="text-3xl mb-4">🎭</div>
-                            <div class="font-medium mb-2">Ready to execute your MySQL queries</div>
-                            <div class="text-sm muted-foreground">Enter a query and watch the dolls dance!</div>
-                        </div>
-
-                        <div id="noResultsState" class="text-center py-8 hidden">
-                            <div class="text-3xl mb-4">🔍</div>
-                            <div class="font-medium mb-2">No results found</div>
-                            <div class="text-sm muted-foreground">Try a different query</div>
+                            <!-- Execute row -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mt-3"
+                                style="flex-shrink:0;">
+                                <button id="executeBtn" class="btn btn-primary" aria-label="Execute SQL Query">
+                                    <svg id="playIcon" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <polygon points="5,3 19,12 5,21 5,3" />
+                                    </svg>
+                                    <svg id="spinnerIcon" class="w-4 h-4 spinner hidden flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    <span id="btnText">Execute Query</span>
+                                </button>
+                                <span class="text-xs sm:text-sm muted-foreground text-center sm:text-left">
+                                    Press Shift+Enter to execute
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Right: Results -->
+                <div class="right-col">
+                    <div class="card h-full" style="display:flex; flex-direction:column;">
+                        <div class="card-header" style="flex-shrink:0;">
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="card-title min-w-0">
+                                    <svg class="w-4 h-4 primary-color flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path d="M9 18V5l12-2v13" />
+                                        <circle cx="6" cy="18" r="3" />
+                                        <circle cx="18" cy="16" r="3" />
+                                    </svg>
+                                    <span class="truncate">Query Results</span>
+                                </div>
+                                <div id="resultBadge" class="badge badge-secondary hidden flex-shrink-0">
+                                    <span id="resultCount">0</span> result<span id="resultPlural">s</span>
+                                </div>
+                            </div>
+                            <div class="card-description">Results will appear here with dancing animations</div>
+                        </div>
+
+                        <div class="card-content" style="flex:1; overflow:auto; min-height:0;">
+                            <div id="errorAlert" class="alert alert-destructive hidden" role="alert">
+                                <div class="alert-content">
+                                    <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                                    </svg>
+                                    <span id="errorMessage"></span>
+                                </div>
+                            </div>
+
+                            <div id="resultsContainer" class="hidden">
+                                <div class="table-container success-pulse">
+                                    <table class="table">
+                                        <thead id="resultsTableHead"></thead>
+                                        <tbody id="resultsTableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div id="emptyState" class="text-center py-6 sm:py-8">
+                                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">🎭</div>
+                                <div class="font-medium mb-2 text-sm sm:text-base">Ready to execute your MySQL queries
+                                </div>
+                                <div class="text-xs sm:text-sm muted-foreground">Enter a query and watch the dolls
+                                    dance!</div>
+                            </div>
+
+                            <div id="noResultsState" class="text-center py-6 sm:py-8 hidden">
+                                <div class="text-3xl sm:text-4xl mb-3 sm:mb-4">🔍</div>
+                                <div class="font-medium mb-2 text-sm sm:text-base">No results found</div>
+                                <div class="text-xs sm:text-sm muted-foreground">Try a different query</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-    </main>
+        </main>
+    </div><!-- /.app-wrapper -->
 
     <script>
         const API_KEY = "MY_SECRET_KEY";
         const BACKEND_URL = "https://query2dance.onrender.com";
+        const REFRESH_DELAY_MS = 15000;
+        const FETCH_TIMEOUT_MS = 30000;
 
         let isLoading = false;
         let results = null;
         let currentAudio = null;
+        let refreshTimer = null;
+        let debounceTimer = null;
 
-        // DOM Elements
-        const queryInput = document.getElementById('queryInput');
-        const executeBtn = document.getElementById('executeBtn');
-        const playIcon = document.getElementById('playIcon');
-        const spinnerIcon = document.getElementById('spinnerIcon');
-        const btnText = document.getElementById('btnText');
-        const resultBadge = document.getElementById('resultBadge');
-        const resultCount = document.getElementById('resultCount');
-        const resultPlural = document.getElementById('resultPlural');
-        const errorAlert = document.getElementById('errorAlert');
-        const errorMessage = document.getElementById('errorMessage');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const resultsTableBody = document.getElementById('resultsTableBody');
-        const emptyState = document.getElementById('emptyState');
-        const noResultsState = document.getElementById('noResultsState');
+        const DOM = {
+            queryInput: document.getElementById('queryInput'),
+            executeBtn: document.getElementById('executeBtn'),
+            playIcon: document.getElementById('playIcon'),
+            spinnerIcon: document.getElementById('spinnerIcon'),
+            btnText: document.getElementById('btnText'),
+            resultBadge: document.getElementById('resultBadge'),
+            resultCount: document.getElementById('resultCount'),
+            resultPlural: document.getElementById('resultPlural'),
+            errorAlert: document.getElementById('errorAlert'),
+            errorMessage: document.getElementById('errorMessage'),
+            resultsContainer: document.getElementById('resultsContainer'),
+            resultsTableHead: document.getElementById('resultsTableHead'),
+            resultsTableBody: document.getElementById('resultsTableBody'),
+            emptyState: document.getElementById('emptyState'),
+            noResultsState: document.getElementById('noResultsState'),
+            loadingOverlay: document.getElementById('loadingOverlay')
+        };
 
-        // SQL Syntax Highlighting
-        function highlightSQL(text) {
-            const selectKeywords = /\b(SELECT)\b/gi;
-            const fromKeywords = /\b(FROM)\b/gi;
-            const joinKeywords = /\b(JOIN|LEFT|RIGHT|INNER|OUTER|FULL|CROSS)\b/gi;
-            const otherKeywords = /\b(WHERE|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TABLE|DATABASE|INDEX|ON|AS|AND|OR|NOT|NULL|TRUE|FALSE|LIKE|IN|BETWEEN|ORDER|BY|GROUP|HAVING|LIMIT|OFFSET|UNION|DISTINCT|COUNT|SUM|AVG|MAX|MIN|INTO|VALUES|SET)\b/gi;
-            const strings = /'([^']*)'|"([^"]*)"/g;
-            const numbers = /\b\d+(\.\d+)?\b/g;
-            const operators = /[=<>!]+|[+\-*/]/g;
-
-            return text
-                .replace(selectKeywords, '<span class="sql-select">$&</span>')
-                .replace(fromKeywords, '<span class="sql-from">$&</span>')
-                .replace(joinKeywords, '<span class="sql-join">$&</span>')
-                .replace(otherKeywords, '<span class="sql-keyword">$&</span>')
-                .replace(strings, '<span class="sql-string">$&</span>')
-                .replace(numbers, '<span class="sql-number">$&</span>')
-                .replace(operators, '<span class="sql-operator">$&</span>');
+        function fetchWithTimeout(url, options, timeout) {
+            return Promise.race([
+                fetch(url, options),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timeout')), timeout)
+                )
+            ]);
         }
 
-        // Execute Query Function
         async function executeQuery() {
-            const query = queryInput.value.trim();
-
-            if (!query) {
-                showError("Please enter a MySQL query");
-                return;
-            }
+            const query = DOM.queryInput.value.trim();
+            if (!query) { showError("Please enter a MySQL query"); return; }
+            if (isLoading) return;
 
             setLoading(true);
             hideError();
+            stopAudio();
+            clearRefreshTimer();
 
-            // Trigger confetti effect
             if (typeof confetti !== 'undefined') {
                 confetti({
-                    particleCount: 150,
-                    spread: 70,
+                    particleCount: 150, spread: 70,
                     origin: { y: 0.6 },
                     colors: ["#8b5cf6", "#a855f7", "#ffffff", "#06d6a0"],
                 });
             }
 
             try {
-                const response = await fetch(`${BACKEND_URL}/query`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
+                const response = await fetchWithTimeout(
+                    `${BACKEND_URL}/query`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query, API_KEY }),
                     },
-                    body: JSON.stringify({
-                        query: query,
-                        API_KEY: API_KEY,
-                    }),
-                });
-
-                const responseData = await response.json();
+                    FETCH_TIMEOUT_MS
+                );
 
                 if (!response.ok) {
-                    throw new Error(responseData.error || "Query execution failed");
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}: Query execution failed`);
                 }
 
-                // Handle new API response format
-                const resultData = responseData.data || [];
-                const resultCount = responseData.count || 0;
-                const bitstring = responseData.bitstring || "";
+                const responseData = await response.json();
+                if (!responseData || typeof responseData !== 'object') throw new Error("Invalid response format");
 
-                console.log('API Response:', responseData);
-                console.log('Bitstring:', bitstring);
+                const resultData = Array.isArray(responseData.data) ? responseData.data : [];
+                const resultCount = Number(responseData.count) || 0;
+                const bitstring = String(responseData.bitstring || "");
 
                 displayResults(resultData, resultCount, bitstring);
-                playAudio(resultData, resultCount);
+                await playAudio(resultData, resultCount);
+                scheduleRefresh();
             } catch (error) {
-                showError(error.message || "An error occurred");
+                showError(error.message || "An error occurred while executing the query");
                 hideResults();
             } finally {
                 setLoading(false);
             }
         }
 
-        // Display Results Function
         function displayResults(data, count, bitstring) {
             results = { data, count, bitstring };
-
-            // Update badge
-            resultCount.textContent = count;
-            resultPlural.textContent = count !== 1 ? 's' : '';
-            resultBadge.classList.remove('hidden');
-
-            emptyState.classList.add('hidden');
+            DOM.resultCount.textContent = count;
+            DOM.resultPlural.textContent = count !== 1 ? 's' : '';
+            DOM.resultBadge.classList.remove('hidden');
+            DOM.emptyState.classList.add('hidden');
 
             if (data && data.length > 0) {
-                resultsTableBody.innerHTML = '';
-
-                // Build table header dynamically
                 const keys = Object.keys(data[0]);
-                let headerHTML = '<tr>';
+                const fragment = document.createDocumentFragment();
+
+                DOM.resultsTableHead.innerHTML = '';
+                DOM.resultsTableBody.innerHTML = '';
+
+                const headerRow = document.createElement('tr');
                 keys.forEach(key => {
-                    headerHTML += `<th>${key}</th>`;
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headerRow.appendChild(th);
                 });
-                headerHTML += '</tr>';
-                resultsTableBody.innerHTML += headerHTML;
+                DOM.resultsTableHead.appendChild(headerRow);
 
-                // Build table rows dynamically
                 data.forEach(item => {
-                    let rowHTML = '<tr>';
+                    const row = document.createElement('tr');
                     keys.forEach(key => {
-                        rowHTML += `<td>${item[key]}</td>`;
+                        const td = document.createElement('td');
+                        td.textContent = item[key] ?? '';
+                        row.appendChild(td);
                     });
-                    rowHTML += '</tr>';
-                    resultsTableBody.innerHTML += rowHTML;
+                    fragment.appendChild(row);
                 });
 
-                resultsContainer.classList.remove('hidden');
-                noResultsState.classList.add('hidden');
+                DOM.resultsTableBody.appendChild(fragment);
+                DOM.resultsContainer.classList.remove('hidden');
+                DOM.noResultsState.classList.add('hidden');
             } else {
-                resultsContainer.classList.add('hidden');
-                noResultsState.classList.remove('hidden');
+                DOM.resultsContainer.classList.add('hidden');
+                DOM.noResultsState.classList.remove('hidden');
             }
         }
 
-        // Play Audio Function
         async function playAudio(data, count) {
-            // Stop any currently playing audio
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-            }
-
-            const REFRESH_DELAY_MS = 15000; // 30 seconds before refresh
+            stopAudio();
             const generalAudioPath = "audio/general.mp3";
-
-            // Set timeout to refresh page after 30 seconds
-            setTimeout(() => {
-                window.location.reload();
-            }, REFRESH_DELAY_MS);
-
             try {
                 if (count === 1 && data && data.length > 0) {
-                    // SINGLE AUDIO: Play specific audio 2 times, then play general audio
-                    const audioName = (data[0].name || data[0]).toLowerCase().replace(/\s+/g, "");
-                    const filePath = `audio/${audioName}.mp3`;
-
-                    // Play single audio twice
-                    await playSingleAudioTwice(filePath);
-
-                    // Then play general audio
-                    const generalAudio = new Audio(generalAudioPath);
-                    currentAudio = generalAudio;
-                    generalAudio.loop = true;
-                    await generalAudio.play();
-
-                } else {
-                    // GENERAL AUDIO: Play general audio once (looped)
-                    const generalAudio = new Audio(generalAudioPath);
-                    currentAudio = generalAudio;
-                    generalAudio.loop = true;
-                    await generalAudio.play();
+                    const audioName = (data[0].name || data[0]).toString().toLowerCase().replace(/\s+/g, "");
+                    await playSingleAudioTwice(`audio/${audioName}.mp3`);
                 }
-
+                const generalAudio = new Audio(generalAudioPath);
+                currentAudio = generalAudio;
+                generalAudio.loop = true;
+                await generalAudio.play();
             } catch (error) {
-                console.error("Audio playback error:", error);
-                // Fallback: play general audio
                 try {
                     const generalAudio = new Audio(generalAudioPath);
                     currentAudio = generalAudio;
                     generalAudio.loop = true;
                     await generalAudio.play();
-                } catch (e) {
-                    console.error("Error with fallback audio:", e);
-                }
+                } catch (e) { console.error("Audio fallback error:", e); }
             }
         }
 
-        // Helper function to play single audio twice
-        async function playSingleAudioTwice(filePath) {
+        function playSingleAudioTwice(filePath) {
             return new Promise((resolve, reject) => {
                 let playCount = 0;
-
-                function playAudioOnce() {
+                function playOnce() {
                     const audio = new Audio(filePath);
                     currentAudio = audio;
-
                     audio.addEventListener('ended', () => {
                         playCount++;
-                        if (playCount < 2) {
-                            // Play again (second time)
-                            playAudioOnce();
-                        } else {
-                            // Done playing twice
-                            resolve();
-                        }
+                        if (playCount < 2) playOnce(); else resolve();
                     });
-
-                    audio.addEventListener('error', (e) => {
-                        console.error("Error playing single audio:", e);
-                        reject(e);
-                    });
-
+                    audio.addEventListener('error', reject);
                     audio.play().catch(reject);
                 }
-
-                playAudioOnce();
+                playOnce();
             });
         }
 
+        function stopAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+        }
 
-        // Show Error Function
+        function scheduleRefresh() {
+            clearRefreshTimer();
+            refreshTimer = setTimeout(() => window.location.reload(), REFRESH_DELAY_MS);
+        }
+
+        function clearRefreshTimer() {
+            if (refreshTimer) { clearTimeout(refreshTimer); refreshTimer = null; }
+        }
+
         function showError(message) {
-            errorMessage.textContent = message;
-            errorAlert.classList.remove('hidden');
+            DOM.errorMessage.textContent = message;
+            DOM.errorAlert.classList.remove('hidden');
         }
 
-        // Hide Error Function
-        function hideError() {
-            errorAlert.classList.add('hidden');
-        }
+        function hideError() { DOM.errorAlert.classList.add('hidden'); }
 
-        // Hide Results Function
         function hideResults() {
-            resultsContainer.classList.add('hidden');
-            noResultsState.classList.add('hidden');
-            resultBadge.classList.add('hidden');
-            emptyState.classList.remove('hidden');
+            DOM.resultsContainer.classList.add('hidden');
+            DOM.noResultsState.classList.add('hidden');
+            DOM.resultBadge.classList.add('hidden');
+            DOM.emptyState.classList.remove('hidden');
             results = null;
         }
 
         function setLoading(loading) {
             isLoading = loading;
-            executeBtn.disabled = loading;
-
+            DOM.executeBtn.disabled = loading;
+            DOM.loadingOverlay.classList.toggle('hidden', !loading);
             if (loading) {
-                playIcon.classList.add('hidden');
-                spinnerIcon.classList.remove('hidden');
-                btnText.textContent = 'Executing...';
+                DOM.playIcon.classList.add('hidden');
+                DOM.spinnerIcon.classList.remove('hidden');
+                DOM.btnText.textContent = 'Executing...';
             } else {
-                playIcon.classList.remove('hidden');
-                spinnerIcon.classList.add('hidden');
-                btnText.textContent = 'Execute Query';
+                DOM.playIcon.classList.remove('hidden');
+                DOM.spinnerIcon.classList.add('hidden');
+                DOM.btnText.textContent = 'Execute Query';
             }
         }
 
-        executeBtn.addEventListener('click', executeQuery);
+        DOM.executeBtn.addEventListener('click', () => {
+            clearTimeout(debounceTimer);
+            executeQuery();
+        });
 
-        queryInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.ctrlKey && !e.shiftKey) {
+        DOM.queryInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.shiftKey && !e.ctrlKey) {
                 e.preventDefault();
+                clearTimeout(debounceTimer);
                 executeQuery();
             }
         });
+
+        window.addEventListener('beforeunload', () => { stopAudio(); clearRefreshTimer(); });
 
         hideResults();
         hideError();

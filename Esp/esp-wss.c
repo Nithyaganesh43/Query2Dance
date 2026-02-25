@@ -9,9 +9,9 @@ const char* WIFI_SSID="Sorry";
 const char* WIFI_PASS="aaaaaaaa";
 
 // ================= RENDER WSS =================
-const char* WS_HOST="query2dance.onrender.com";
-const uint16_t WS_PORT=443;
-const char* WS_PATH="/";
+const char* WSS_HOST="query2dance.onrender.com";
+const uint16_t WSS_PORT=443;
+const char* WSS_PATH="/ws";
 
 WebSocketsClient webSocket;
 
@@ -170,7 +170,7 @@ void setup(){
   Serial.println(WiFi.localIP());
 
   // WebSocket Secure Connection (Render)
-  webSocket.beginSSL(WS_HOST,WS_PORT,WS_PATH);
+  webSocket.beginSSL(WSS_HOST,WSS_PORT,WSS_PATH);
   webSocket.setInsecure();   // required for Render TLS
   webSocket.onEvent(webSocketEvent);
   webSocket.setReconnectInterval(5000);

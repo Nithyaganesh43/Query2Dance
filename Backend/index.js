@@ -39,7 +39,7 @@ function initDatabase() {
 
       db.run("CREATE TABLE animal(id INTEGER PRIMARY KEY,name TEXT UNIQUE,food TEXT,color TEXT)");
       const animal = db.prepare("INSERT INTO animal VALUES(?,?,?,?)");
-      [[4, 'cow', 'grass', 'white'], [2, 'deer', 'leaves', 'brown'], [3, 'rhino', 'plants', 'grey']].forEach(r => animal.run(r));
+      [[1, 'cow', 'grass', 'white'], [10, 'deer', 'leaves', 'brown'], [5, 'rhino', 'plants', 'grey']].forEach(r => animal.run(r));
       animal.finalize();
 
       db.run(`CREATE TABLE human(
@@ -53,10 +53,10 @@ function initDatabase() {
      )`);
       const human = db.prepare("INSERT INTO human VALUES(?,?,?,?,?,?,?)");
       [
-        [10, 'priya', 20, 'female', 101, 2, null],
-        [7, 'abi', 21, 'female', 102, 2, null],
-        [6, 'sana', 22, 'female', 103, 3, null],
-        [5, 'saro', 23, 'male', 104, 3, null]
+        [7, 'priya', 20, 'female', 101, 6, null],
+        [9, 'abi', 21, 'female', 102, 6, null],
+        [3, 'sana', 22, 'female', 103, 7, null],
+        [2, 'saro', 23, 'male', 104, 7, null]
       ].forEach(r => human.run(r));
       human.finalize();
 
@@ -70,15 +70,15 @@ function initDatabase() {
      )`);
       const vehicle = db.prepare("INSERT INTO vehicle VALUES(?,?,?,?,?,?)");
       [
-        [9, 'car', 7, 4, 'car', 'TN01AB1234'],
-        [8, 'bike', 10, 2, 'bike', 'TN02CB5678'],
-        [1, 'bus', 6, 6, 'bus', 'TN03EF9876']
+        [6, 'car', 5, 4, 'car', 'TN01AB1234'],
+        [4, 'bike', 3, 2, 'bike', 'TN02CB5678'],
+        [8, 'bus', 10, 6, 'bus', 'TN03EF9876']
       ].forEach(r => vehicle.run(r));
       vehicle.finalize();
 
-      db.run("UPDATE human SET vehicle_id=9 WHERE id=7");
-      db.run("UPDATE human SET vehicle_id=8 WHERE id=10");
-      db.run("UPDATE human SET vehicle_id=1 WHERE id=6");
+      db.run("UPDATE human SET vehicle_id=2 WHERE id=5");
+      db.run("UPDATE human SET vehicle_id=1 WHERE id=3");
+      db.run("UPDATE human SET vehicle_id=4 WHERE id=10");
 
       console.log("Database ready");
       resolve();
@@ -149,115 +149,6 @@ function buildBitstring(rows) {
 function hasLight(rows, name) {
   return rows.some(r => String(r.name || '').toLowerCase() === name.toLowerCase());
 }
-
-// ================= AUTO DANCE =================
-let autoDanceInterval = null;
-
-const randomTables = ['human', 'vehicle', 'animal'];
-const skipAutoStop = new Set(['/auto-dance', '/stop', '/health']);
-
-app.use((req, res, next) => {
-  if (!skipAutoStop.has(req.path) && autoDanceInterval) {
-    clearInterval(autoDanceInterval);
-    autoDanceInterval = null;
-    console.log('Auto-dance stopped: another API was called');
-  }
-  next();
-});
-
-function shuffle(list) {
-  const copy = list.slice();
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const swap = copy[i];
-    copy[i] = copy[j];
-    copy[j] = swap;
-  }
-  return copy;
-}
-
-function loadTable(table) {
-  return new Promise((resolve, reject) => {
-    db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
-      if (err) return reject(err);
-      resolve((rows || []).map(row => ({ table, ...row })));
-    });
-  });
-}
-
-function sendRandomSignal() {
-  if (!espSocket || espSocket.readyState !== WebSocket.OPEN) {
-    console.log('ESP32 disconnected; skipping signal');
-    return;
-  }
-
-  Promise.all(randomTables.map(loadTable))
-    .then(groups => {
-      const pool = groups.flat();
-      if (pool.length < 2) {
-        console.error('Not enough records for auto-dance');
-        return;
-      }
-
-      const count = 2 + Math.floor(Math.random() * 4);
-      const picked = shuffle(pool).slice(0, Math.min(count, pool.length, 5));
-      const payload = {
-        type: 'cmd',
-        mode: 'auto-dance',
-        count: picked.length,
-        data: picked,
-        bitstring: buildBitstring(picked),
-        light1: false,
-        light2: false
-      };
-
-      if (espSocket && espSocket.readyState === WebSocket.OPEN) {
-        espSocket.send(JSON.stringify(payload));
-        console.log('Random signal sent:', payload);
-      }
-    })
-    .catch(err => console.error('Failed to fetch random data:', err.message));
-}
-
-app.post('/auto-dance', (req, res) => {
-  const { API_KEY: clientKey } = req.body;
-
-  if (clientKey !== API_KEY) {
-    return res.status(401).json({ error: 'Invalid key' });
-  }
-
-  if (!espSocket || espSocket.readyState !== WebSocket.OPEN) {
-    return res.status(503).json({ error: 'ESP32 not connected' });
-  }
-
-  if (autoDanceInterval) {
-    return res.json({ success: true, message: 'Auto-dance is already running' });
-  }
-
-  sendRandomSignal();
-  autoDanceInterval = setInterval(sendRandomSignal, 30000);
-
-  res.json({
-    success: true,
-    message: 'Auto-dance started. 2 to 5 dolls every 30 seconds',
-    interval: '30 seconds'
-  });
-});
-
-app.post('/stop', (req, res) => {
-  const { API_KEY: clientKey } = req.body;
-
-  if (clientKey !== API_KEY) {
-    return res.status(401).json({ error: 'Invalid key' });
-  }
-
-  if (autoDanceInterval) {
-    clearInterval(autoDanceInterval);
-    autoDanceInterval = null;
-  }
-
-  res.json({ success: true, message: 'Auto-dance stopped' });
-});
 
 // ================= API =================
 app.post('/query', (req, res) => {

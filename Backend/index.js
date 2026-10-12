@@ -39,7 +39,7 @@ function initDatabase() {
 
       db.run("CREATE TABLE animal(id INTEGER PRIMARY KEY,name TEXT UNIQUE,food TEXT,color TEXT)");
       const animal = db.prepare("INSERT INTO animal VALUES(?,?,?,?)");
-      [[8, 'cow', 'grass', 'white'], [6, 'deer', 'leaves', 'brown'], [7, 'rhino', 'plants', 'grey']].forEach(r => animal.run(r));
+      [[4, 'cow', 'grass', 'white'], [2, 'deer', 'leaves', 'brown'], [3, 'rhino', 'plants', 'grey']].forEach(r => animal.run(r));
       animal.finalize();
 
       db.run(`CREATE TABLE human(
@@ -53,10 +53,10 @@ function initDatabase() {
      )`);
       const human = db.prepare("INSERT INTO human VALUES(?,?,?,?,?,?,?)");
       [
-        [3, 'priya', 20, 'female', 101, 6, null],
-        [5, 'abi', 21, 'female', 102, 6, null],
-        [10, 'sana', 22, 'female', 103, 7, null],
-        [9, 'saro', 23, 'male', 104, 7, null]
+        [10, 'priya', 20, 'female', 101, 2, null],
+        [7, 'abi', 21, 'female', 102, 2, null],
+        [6, 'sana', 22, 'female', 103, 3, null],
+        [5, 'saro', 23, 'male', 104, 3, null]
       ].forEach(r => human.run(r));
       human.finalize();
 
@@ -70,15 +70,15 @@ function initDatabase() {
      )`);
       const vehicle = db.prepare("INSERT INTO vehicle VALUES(?,?,?,?,?,?)");
       [
-        [2, 'car', 5, 4, 'car', 'TN01AB1234'],
-        [1, 'bike', 3, 2, 'bike', 'TN02CB5678'],
-        [4, 'bus', 10, 6, 'bus', 'TN03EF9876']
+        [9, 'car', 7, 4, 'car', 'TN01AB1234'],
+        [8, 'bike', 10, 2, 'bike', 'TN02CB5678'],
+        [1, 'bus', 6, 6, 'bus', 'TN03EF9876']
       ].forEach(r => vehicle.run(r));
       vehicle.finalize();
 
-      db.run("UPDATE human SET vehicle_id=2 WHERE id=5");
-      db.run("UPDATE human SET vehicle_id=1 WHERE id=3");
-      db.run("UPDATE human SET vehicle_id=4 WHERE id=10");
+      db.run("UPDATE human SET vehicle_id=9 WHERE id=7");
+      db.run("UPDATE human SET vehicle_id=8 WHERE id=10");
+      db.run("UPDATE human SET vehicle_id=1 WHERE id=6");
 
       console.log("Database ready");
       resolve();

@@ -1102,10 +1102,10 @@
                                 </div>
                                 <div class="db-sample-data">
                                     <div class="db-sample-title">SAMPLE DATA:</div>
-                                    <div class="db-sample-row">3 | priya | 20 | female</div>
-                                    <div class="db-sample-row">5 | abi | 21 | female</div>
-                                    <div class="db-sample-row">10 | sana | 22 | female</div>
-                                    <div class="db-sample-row">9 | saro | 23 | male</div>
+                                    <div class="db-sample-row">10 | priya | 20 | female</div>
+                                    <div class="db-sample-row">7 | abi | 21 | female</div>
+                                    <div class="db-sample-row">6 | sana | 22 | female</div>
+                                    <div class="db-sample-row">5 | saro | 23 | male</div>
                                 </div>
                             </div>
                         </div>
@@ -1142,9 +1142,9 @@
                                 </div>
                                 <div class="db-sample-data">
                                     <div class="db-sample-title">SAMPLE DATA:</div>
-                                    <div class="db-sample-row">1 | bike | TN02CB5678</div>
-                                    <div class="db-sample-row">2 | car | TN01AB1234</div>
-                                    <div class="db-sample-row">4 | bus | TN03EF9876</div>
+                                    <div class="db-sample-row">8 | bike | TN02CB5678</div>
+                                    <div class="db-sample-row">9 | car | TN01AB1234</div>
+                                    <div class="db-sample-row">1 | bus | TN03EF9876</div>
                                 </div>
                             </div>
                         </div>
@@ -1172,9 +1172,9 @@
                                 </div>
                                 <div class="db-sample-data">
                                     <div class="db-sample-title">SAMPLE DATA:</div>
-                                    <div class="db-sample-row">6 | deer | leaves | brown</div>
-                                    <div class="db-sample-row">7 | rhino | plants | grey</div>
-                                    <div class="db-sample-row">8 | cow | grass | white</div>
+                                    <div class="db-sample-row">2 | deer | leaves | brown</div>
+                                    <div class="db-sample-row">3 | rhino | plants | grey</div>
+                                    <div class="db-sample-row">4 | cow | grass | white</div>
                                 </div>
                             </div>
                         </div>
@@ -1270,15 +1270,15 @@
                         </div>
                         <div
                             style="font-size:11px;color:var(--muted-foreground);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">
-                            Example — IDs 3, 5, 10 returned:</div>
+                            Example — IDs 6, 7, 10 returned:</div>
                         <div class="bit-row">
                             <div class="bit bit-off"><span class="bi">1</span>0</div>
                             <div class="bit bit-off"><span class="bi">2</span>0</div>
-                            <div class="bit bit-on"><span class="bi">3</span>1</div>
+                            <div class="bit bit-off"><span class="bi">3</span>0</div>
                             <div class="bit bit-off"><span class="bi">4</span>0</div>
-                            <div class="bit bit-on"><span class="bi">5</span>1</div>
-                            <div class="bit bit-off"><span class="bi">6</span>0</div>
-                            <div class="bit bit-off"><span class="bi">7</span>0</div>
+                            <div class="bit bit-off"><span class="bi">5</span>0</div>
+                            <div class="bit bit-on"><span class="bi">6</span>1</div>
+                            <div class="bit bit-on"><span class="bi">7</span>1</div>
                             <div class="bit bit-off"><span class="bi">8</span>0</div>
                             <div class="bit bit-off"><span class="bi">9</span>0</div>
                             <div class="bit bit-on"><span class="bi">10</span>1</div>
@@ -1286,7 +1286,7 @@
                         <div
                             style="font-family:var(--mono);font-size:11px;color:var(--muted-foreground);margin-top:4px;">
                             Bitstring: <span
-                                style="color:var(--c-purple);letter-spacing:2px;font-weight:700;">0010100001</span>
+                                style="color:var(--c-purple);letter-spacing:2px;font-weight:700;">0000011001</span>
                         </div>
                     </div>
 
@@ -1386,13 +1386,13 @@
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output</div>
-                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
-                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span></div>
-                            <div class="out-row"><span class="out-id">9</span><span class="out-name">saro</span></div>
-                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">7</span><span class="out-name">abi</span></div>
+                            <div class="out-row"><span class="out-id">5</span><span class="out-name">saro</span></div>
+                            <div class="out-row"><span class="out-id">6</span><span class="out-name">sana</span></div>
                         </div>
                         <div class="rtags"><span class="rtag"><span class="dot"
-                                    style="background:var(--c-purple)"></span>Dolls 3, 5, 9, 10 move</span><span
+                                    style="background:var(--c-purple)"></span>Dolls 10, 7, 5, 6 move</span><span
                                 class="rtag"><span class="dot" style="background:var(--c-teal)"></span>General music
                                 plays</span></div>
                     </div>
@@ -1406,22 +1406,22 @@
                     <div class="ex-body">
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 3;')"><svg width="11"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 10;')"><svg width="11"
                                         height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">3</span>;</pre>
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">10</span>;</pre>
                             </div>
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output (1 row)</div>
-                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">priya</span></div>
                         </div>
                         <div class="rtags"><span class="rtag"><span class="dot"
-                                    style="background:var(--c-purple)"></span>Doll 3 moves</span><span
+                                    style="background:var(--c-purple)"></span>Doll 10 moves</span><span
                                 class="rtag"><span class="dot" style="background:var(--c-pink)"></span>Priya's audio
                                 plays</span></div>
                     </div>
@@ -1435,24 +1435,24 @@
                     <div class="ex-body">
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')"><svg
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (10, 7, 6);')"><svg
                                         width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>, <span class="num">10</span>);</pre>
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>, <span class="num">7</span>, <span class="num">6</span>);</pre>
                             </div>
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output (3 rows)</div>
-                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
-                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span></div>
-                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">7</span><span class="out-name">abi</span></div>
+                            <div class="out-row"><span class="out-id">6</span><span class="out-name">sana</span></div>
                         </div>
                         <div class="rtags"><span class="rtag"><span class="dot"
-                                    style="background:var(--c-purple)"></span>Dolls 3, 5, 10 move</span><span
+                                    style="background:var(--c-purple)"></span>Dolls 10, 7, 6 move</span><span
                                 class="rtag"><span class="dot" style="background:var(--c-teal)"></span>General music
                                 plays</span></div>
                     </div>
@@ -1557,27 +1557,27 @@
                     <div class="ex-body">
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (3, 5)\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (10, 7)\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
                                         width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>)
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>, <span class="num">7</span>)
 <span class="kw">UNION</span>
 <span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
                             </div>
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output (3 rows)</div>
-                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
-                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">7</span><span class="out-name">abi</span></div>
                             <div class="out-row"><span class="out-id">11</span><span class="out-name">light 1</span>
                             </div>
                         </div>
                         <div class="rtags"><span class="rtag"><span class="dot"
-                                    style="background:var(--c-purple)"></span>Dolls 3 &amp; 5 move</span><span
+                                    style="background:var(--c-purple)"></span>Dolls 10 &amp; 7 move</span><span
                                 class="rtag"><span class="dot" style="background:var(--c-amber)"></span>Light 1
                                 ON</span><span class="rtag"><span class="dot"
                                     style="background:var(--c-teal)"></span>Music plays</span></div>
@@ -1592,26 +1592,26 @@
                     <div class="ex-body">
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id = 3\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id = 10\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
                                         width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">3</span>
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">10</span>
 <span class="kw">UNION</span>
 <span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
                             </div>
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output (2 rows)</div>
-                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span></div>
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">priya</span></div>
                             <div class="out-row"><span class="out-id">11</span><span class="out-name">light 1</span>
                             </div>
                         </div>
                         <div class="rtags"><span class="rtag"><span class="dot"
-                                    style="background:var(--c-purple)"></span>Doll 3 moves</span><span
+                                    style="background:var(--c-purple)"></span>Doll 10 moves</span><span
                                 class="rtag"><span class="dot" style="background:var(--c-amber)"></span>Light 1
                                 ON</span><span class="rtag"><span class="dot"
                                     style="background:var(--c-teal)"></span>Music plays (2 rows)</span></div>
@@ -1649,9 +1649,9 @@
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output</div>
-                            <div class="out-row"><span class="out-id">9</span><span class="out-name">saro</span><span
+                            <div class="out-row"><span class="out-id">5</span><span class="out-name">saro</span><span
                                     class="out-extra" style="margin-left:8px;">(age 23)</span></div>
-                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span><span
+                            <div class="out-row"><span class="out-id">6</span><span class="out-name">sana</span><span
                                     class="out-extra" style="margin-left:8px;">(age 22)</span></div>
                         </div>
                     </div>
@@ -1677,7 +1677,7 @@
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output</div>
-                            <div class="out-row"><span class="out-id">8</span><span class="out-name">cow</span></div>
+                            <div class="out-row"><span class="out-id">4</span><span class="out-name">cow</span></div>
                         </div>
                     </div>
                 </div>
@@ -1714,11 +1714,11 @@
                         </div>
                         <div class="output-block">
                             <div class="out-lbl">Output — shows ownership data</div>
-                            <div class="out-row"><span class="out-id">3</span><span class="out-name">priya</span><span
+                            <div class="out-row"><span class="out-id">10</span><span class="out-name">priya</span><span
                                     class="out-extra" style="margin-left:8px;">→ bike</span></div>
-                            <div class="out-row"><span class="out-id">5</span><span class="out-name">abi</span><span
+                            <div class="out-row"><span class="out-id">7</span><span class="out-name">abi</span><span
                                     class="out-extra" style="margin-left:8px;">→ car</span></div>
-                            <div class="out-row"><span class="out-id">10</span><span class="out-name">sana</span><span
+                            <div class="out-row"><span class="out-id">6</span><span class="out-name">sana</span><span
                                     class="out-extra" style="margin-left:8px;">→ bus</span></div>
                         </div>
                     </div>
@@ -1744,9 +1744,9 @@
                                 <div class="demo-ttl">Move one doll</div>
                             </div>
                             <div class="demo-code"><button class="demo-copy"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 3;')">Copy</button><span
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 10;')">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
-                                    class="kw">WHERE</span> id = <span class="num">3</span>;</div>
+                                    class="kw">WHERE</span> id = <span class="num">10</span>;</div>
                         </div>
                         <div class="demo-card">
                             <div class="demo-head">
@@ -1754,10 +1754,10 @@
                                 <div class="demo-ttl">Move two dolls</div>
                             </div>
                             <div class="demo-code"><button class="demo-copy"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5);')">Copy</button><span
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (10, 7);')">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
-                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
-                                <span class="num">5</span>);
+                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>,
+                                <span class="num">7</span>);
                             </div>
                         </div>
                         <div class="demo-card">
@@ -1782,10 +1782,10 @@
                                 <div class="demo-ttl">Dolls dance + music</div>
                             </div>
                             <div class="demo-code"><button class="demo-copy"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')">Copy</button><span
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (10, 7, 6);')">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human<br /><span
-                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
-                                <span class="num">5</span>, <span class="num">10</span>);
+                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>,
+                                <span class="num">7</span>, <span class="num">6</span>);
                             </div>
                         </div>
                         <div class="demo-card">
@@ -1794,9 +1794,9 @@
                                 <div class="demo-ttl">Doll + light</div>
                             </div>
                             <div class="demo-code"><button class="demo-copy"
-                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id = 3\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)">Copy</button><span
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id = 10\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
-                                    class="kw">WHERE</span> id = <span class="num">3</span><br /><span
+                                    class="kw">WHERE</span> id = <span class="num">10</span><br /><span
                                     class="kw">UNION</span><br /><span class="kw">SELECT</span> id, name <span
                                     class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span
                                     class="str">'light 1'</span>;</div>
@@ -1822,10 +1822,10 @@
                                 <div class="demo-ttl">Dolls + both lights</div>
                             </div>
                             <div class="demo-code"><button class="demo-copy"
-                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (3, 5)\nUNION\nSELECT id, name FROM light;`)">Copy</button><span
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (10, 7)\nUNION\nSELECT id, name FROM light;`)">Copy</button><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span
-                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>,
-                                <span class="num">5</span>)<br /><span class="kw">UNION</span><br /><span
+                                    class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>,
+                                <span class="num">7</span>)<br /><span class="kw">UNION</span><br /><span
                                     class="kw">SELECT</span> id, name <span class="kw">FROM</span> light;
                             </div>
                         </div>
@@ -1968,14 +1968,14 @@
                         <div class="cheat-desc">Move one doll</div>
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 3;')"><svg width="11"
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id = 10;')"><svg width="11"
                                         height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">3</span>;</pre>
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id = <span class="num">10</span>;</pre>
                             </div>
                         </div>
                     </div>
@@ -1983,14 +1983,14 @@
                         <div class="cheat-desc">Move multiple dolls</div>
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (3, 5, 10);')"><svg
+                                    onclick="copyCode(this,'SELECT id, name FROM human WHERE id IN (10, 7, 6);')"><svg
                                         width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>, <span class="num">10</span>);</pre>
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>, <span class="num">7</span>, <span class="num">6</span>);</pre>
                             </div>
                         </div>
                     </div>
@@ -2013,14 +2013,14 @@
                         <div class="cheat-desc">Dolls + light</div>
                         <div class="code-wrap">
                             <div class="code-head"><span class="code-lbl">SQL</span><button class="copy-btn"
-                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (3, 5)\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
+                                    onclick="copyCode(this,`SELECT id, name FROM human WHERE id IN (10, 7)\nUNION\nSELECT id, name FROM light WHERE name = 'light 1';`)"><svg
                                         width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" />
                                         <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg> Copy</button></div>
                             <div class="code-body">
-                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">3</span>, <span class="num">5</span>)
+                                <pre><span class="kw">SELECT</span> id, name <span class="kw">FROM</span> human <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="num">10</span>, <span class="num">7</span>)
 <span class="kw">UNION</span>
 <span class="kw">SELECT</span> id, name <span class="kw">FROM</span> light <span class="kw">WHERE</span> name = <span class="str">'light 1'</span>;</pre>
                             </div>

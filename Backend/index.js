@@ -165,36 +165,58 @@ app.use((req, res, next) => {
   next();
 });
 
+function shuffle(list) {
+  const copy = list.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const swap = copy[i];
+    copy[i] = copy[j];
+    copy[j] = swap;
+  }
+  return copy;
+}
+
+function loadTable(table) {
+  return new Promise((resolve, reject) => {
+    db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
+      if (err) return reject(err);
+      resolve((rows || []).map(row => ({ table, ...row })));
+    });
+  });
+}
+
 function sendRandomSignal() {
   if (!espSocket || espSocket.readyState !== WebSocket.OPEN) {
     console.log('ESP32 disconnected; skipping signal');
     return;
   }
 
-  const table = randomTables[Math.floor(Math.random() * randomTables.length)];
+  Promise.all(randomTables.map(loadTable))
+    .then(groups => {
+      const pool = groups.flat();
+      if (pool.length < 2) {
+        console.error('Not enough records for auto-dance');
+        return;
+      }
 
-  db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
-    if (err || !rows || rows.length === 0) {
-      console.error('Failed to fetch random data:', err?.message);
-      return;
-    }
+      const count = 2 + Math.floor(Math.random() * 4);
+      const picked = shuffle(pool).slice(0, Math.min(count, pool.length, 5));
+      const payload = {
+        type: 'cmd',
+        mode: 'auto-dance',
+        count: picked.length,
+        data: picked,
+        bitstring: buildBitstring(picked),
+        light1: false,
+        light2: false
+      };
 
-    const record = rows[Math.floor(Math.random() * rows.length)];
-    const payload = {
-      type: 'cmd',
-      mode: 'auto-dance',
-      table,
-      data: record,
-      bitstring: buildBitstring([record]),
-      light1: false,
-      light2: false
-    };
-
-    if (espSocket && espSocket.readyState === WebSocket.OPEN) {
-      espSocket.send(JSON.stringify(payload));
-      console.log('Random signal sent:', payload);
-    }
-  });
+      if (espSocket && espSocket.readyState === WebSocket.OPEN) {
+        espSocket.send(JSON.stringify(payload));
+        console.log('Random signal sent:', payload);
+      }
+    })
+    .catch(err => console.error('Failed to fetch random data:', err.message));
 }
 
 app.post('/auto-dance', (req, res) => {
@@ -217,7 +239,7 @@ app.post('/auto-dance', (req, res) => {
 
   res.json({
     success: true,
-    message: 'Auto-dance started',
+    message: 'Auto-dance started. 2 to 5 dolls every 30 seconds',
     interval: '30 seconds'
   });
 });

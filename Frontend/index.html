@@ -727,7 +727,7 @@
                     throw new Error(responseData.error || `HTTP ${response.status}: Auto dance failed`);
                 }
 
-                setAutoDanceUi(true, responseData.message || 'Auto dance is on — a random doll every 30 seconds');
+                setAutoDanceUi(true, responseData.message || 'Auto dance is on — 2 to 5 dolls every 30 seconds');
             } catch (error) {
                 setAutoDanceUi(false, 'Auto dance is off');
                 showError(error.message || "Could not start auto dance");

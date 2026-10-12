@@ -119,6 +119,7 @@
             cursor: pointer;
             border: none;
             min-height: 44px;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -133,6 +134,26 @@
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--foreground);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+        }
+
+        .auto-status {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .auto-status.on {
+            color: var(--primary);
+            font-weight: 600;
         }
 
         /* Terminal */
@@ -537,8 +558,8 @@
                             </div>
 
                             <!-- Execute row -->
-                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 mt-3"
-                                style="flex-shrink:0;">
+                            <div class="flex flex-col gap-2 mt-3" style="flex-shrink:0;">
+                            <div class="flex flex-wrap items-center gap-2">
                                 <button id="executeBtn" class="btn btn-primary" aria-label="Execute SQL Query">
                                     <svg id="playIcon" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -551,9 +572,17 @@
                                     </svg>
                                     <span id="btnText">Execute Query</span>
                                 </button>
-                                <span class="text-xs sm:text-sm muted-foreground text-center sm:text-left">
-                                    Press Shift+Enter to execute
-                                </span>
+                                <button id="autoDanceBtn" class="btn btn-outline" aria-label="Start auto dance">
+                                    Auto Dance
+                                </button>
+                                <button id="stopDanceBtn" class="btn btn-outline" aria-label="Stop auto dance" disabled>
+                                    Stop
+                                </button>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span id="autoDanceStatus" class="auto-status">Auto dance is off</span>
+                                <span class="text-xs sm:text-sm muted-foreground">Press Shift+Enter to execute</span>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -651,8 +680,13 @@
             resultsTableBody: document.getElementById('resultsTableBody'),
             emptyState: document.getElementById('emptyState'),
             noResultsState: document.getElementById('noResultsState'),
-            loadingOverlay: document.getElementById('loadingOverlay')
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            autoDanceBtn: document.getElementById('autoDanceBtn'),
+            stopDanceBtn: document.getElementById('stopDanceBtn'),
+            autoDanceStatus: document.getElementById('autoDanceStatus')
         };
+
+        let autoDanceOn = false;
 
         function fetchWithTimeout(url, options, timeout) {
             return Promise.race([
@@ -661,6 +695,74 @@
                     setTimeout(() => reject(new Error('Request timeout')), timeout)
                 )
             ]);
+        }
+
+        function setAutoDanceUi(on, message) {
+            autoDanceOn = on;
+            DOM.autoDanceBtn.disabled = on;
+            DOM.stopDanceBtn.disabled = !on;
+            DOM.autoDanceStatus.textContent = message;
+            DOM.autoDanceStatus.classList.toggle('on', on);
+        }
+
+        async function startAutoDance() {
+            if (isLoading || autoDanceOn) return;
+            setLoading(true);
+            hideError();
+            clearRefreshTimer();
+
+            try {
+                const response = await fetchWithTimeout(
+                    `${BACKEND_URL}/auto-dance`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ API_KEY }),
+                    },
+                    FETCH_TIMEOUT_MS
+                );
+
+                const responseData = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(responseData.error || `HTTP ${response.status}: Auto dance failed`);
+                }
+
+                setAutoDanceUi(true, responseData.message || 'Auto dance is on — a random doll every 30 seconds');
+            } catch (error) {
+                setAutoDanceUi(false, 'Auto dance is off');
+                showError(error.message || "Could not start auto dance");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function stopAutoDance() {
+            if (isLoading || !autoDanceOn) return;
+            setLoading(true);
+            hideError();
+
+            try {
+                const response = await fetchWithTimeout(
+                    `${BACKEND_URL}/stop`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ API_KEY }),
+                    },
+                    FETCH_TIMEOUT_MS
+                );
+
+                const responseData = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(responseData.error || `HTTP ${response.status}: Stop failed`);
+                }
+
+                setAutoDanceUi(false, responseData.message || 'Auto dance stopped');
+            } catch (error) {
+                showError(error.message || "Could not stop auto dance");
+            } finally {
+                setLoading(false);
+            }
         }
 
         async function executeQuery() {
@@ -672,6 +774,7 @@
             hideError();
             stopAudio();
             clearRefreshTimer();
+            if (autoDanceOn) setAutoDanceUi(false, 'Auto dance stopped');
 
             if (typeof confetti !== 'undefined') {
                 confetti({
@@ -846,6 +949,9 @@
             clearTimeout(debounceTimer);
             executeQuery();
         });
+
+        DOM.autoDanceBtn.addEventListener('click', startAutoDance);
+        DOM.stopDanceBtn.addEventListener('click', stopAutoDance);
 
         DOM.queryInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && e.shiftKey && !e.ctrlKey) {

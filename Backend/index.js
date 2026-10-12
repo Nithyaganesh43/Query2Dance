@@ -150,6 +150,93 @@ function hasLight(rows, name) {
   return rows.some(r => String(r.name || '').toLowerCase() === name.toLowerCase());
 }
 
+// ================= AUTO DANCE =================
+let autoDanceInterval = null;
+
+const randomTables = ['human', 'vehicle', 'animal'];
+const skipAutoStop = new Set(['/auto-dance', '/stop', '/health']);
+
+app.use((req, res, next) => {
+  if (!skipAutoStop.has(req.path) && autoDanceInterval) {
+    clearInterval(autoDanceInterval);
+    autoDanceInterval = null;
+    console.log('Auto-dance stopped: another API was called');
+  }
+  next();
+});
+
+function sendRandomSignal() {
+  if (!espSocket || espSocket.readyState !== WebSocket.OPEN) {
+    console.log('ESP32 disconnected; skipping signal');
+    return;
+  }
+
+  const table = randomTables[Math.floor(Math.random() * randomTables.length)];
+
+  db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
+    if (err || !rows || rows.length === 0) {
+      console.error('Failed to fetch random data:', err?.message);
+      return;
+    }
+
+    const record = rows[Math.floor(Math.random() * rows.length)];
+    const payload = {
+      type: 'cmd',
+      mode: 'auto-dance',
+      table,
+      data: record,
+      bitstring: buildBitstring([record]),
+      light1: false,
+      light2: false
+    };
+
+    if (espSocket && espSocket.readyState === WebSocket.OPEN) {
+      espSocket.send(JSON.stringify(payload));
+      console.log('Random signal sent:', payload);
+    }
+  });
+}
+
+app.post('/auto-dance', (req, res) => {
+  const { API_KEY: clientKey } = req.body;
+
+  if (clientKey !== API_KEY) {
+    return res.status(401).json({ error: 'Invalid key' });
+  }
+
+  if (!espSocket || espSocket.readyState !== WebSocket.OPEN) {
+    return res.status(503).json({ error: 'ESP32 not connected' });
+  }
+
+  if (autoDanceInterval) {
+    return res.json({ success: true, message: 'Auto-dance is already running' });
+  }
+
+  sendRandomSignal();
+  autoDanceInterval = setInterval(sendRandomSignal, 30000);
+
+  res.json({
+    success: true,
+    message: 'Auto-dance started',
+    interval: '30 seconds'
+  });
+});
+
+app.post('/stop', (req, res) => {
+  const { API_KEY: clientKey } = req.body;
+
+  if (clientKey !== API_KEY) {
+    return res.status(401).json({ error: 'Invalid key' });
+  }
+
+  if (autoDanceInterval) {
+    clearInterval(autoDanceInterval);
+    autoDanceInterval = null;
+  }
+
+  res.json({ success: true, message: 'Auto-dance stopped' });
+});
+
 // ================= API =================
 app.post('/query', (req, res) => {
   const { query, API_KEY: clientKey } = req.body;
